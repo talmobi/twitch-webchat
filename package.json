@@ -1,0 +1,38 @@
+{
+  "dependencies": {
+    "jquery": "^2.2.2",
+    "phantomjs-prebuilt": "^2.1.7",
+  },
+  "scripts": {
+    "start": "phantomjs --web-security=no index.js",
+    "test": "mocha test/test.js"
+  },
+  "devDependencies": {
+    "mocha": "^2.4.5"
+  },
+  "name": "twitch-webchat-logger",
+  "version": "0.0.0",
+  "description": "consume twitch chat web version (non IRC). Same that non-registered users see. No auth required.",
+  "main": "spawn.js",
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/talmobi/twitch-webchat-logger.git"
+  },
+  "keywords": [
+    "twitch",
+    "web",
+    "chat",
+    "log",
+    "logger",
+    "phantomjs"
+  ],
+  "author": "talmobi <talmo.christian@gmail.com> (http://jin.fi)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/talmobi/twitch-webchat-logger/issues"
+  },
+  "homepage": "https://github.com/talmobi/twitch-webchat-logger#readme"
+}

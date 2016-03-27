@@ -1,0 +1,5 @@
+node_modules/
+private/
+*.swo
+*.swp
+*.DS_STORE
