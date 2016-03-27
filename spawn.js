@@ -12,10 +12,16 @@ var childArgs = [
   path.join(__dirname, "index.js")
 ];
 
-function start (callback) {
+function start (channel, callback) {
+  if (typeof channel !== 'string') {
+    throw new Error("Please specify a channel name (string) as the first argument.");
+  }
+  if (typeof callback !== 'function') {
+    throw new Error("Please specify a callback function as the last argument.");
+  }
 
   // create the child process spawn
-  var spawn = childProcess.spawn(binPath, childArgs);
+  var spawn = childProcess.spawn(binPath, childArgs, {env: {channel: channel}});
 
   // configure consumers
   spawn.stdout.on('data', function (data) {
@@ -41,8 +47,4 @@ if (module !== 'undefined' && module.exports) {
   module.exports = {
     start: start
   };
-} else {
-  start(function (err, data) {
-    console.log("stdout: " + data);
-  });
 }

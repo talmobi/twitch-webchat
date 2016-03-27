@@ -5,6 +5,7 @@
   },
   "scripts": {
     "start": "phantomjs --web-security=no index.js",
+    "piper": "npm start | node pipe.js",
     "test": "mocha test/test.js"
   },
   "devDependencies": {

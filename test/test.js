@@ -1,8 +1,8 @@
 var tg = require('../spawn.js');
 
-var channel = "teamsp00ky"
+var channel = "cryaotic";
 
-tg.start(function (err, data) {
+tg.start(channel, function (err, data) {
   if (err) throw err;
   if (data && typeof data.forEach === 'function') {
     data.forEach(function(val, ind, arr) {

@@ -9,11 +9,13 @@
  *
  */
 
+var system = require('system');
 var page = require('webpage').create();
 var $ = require('jquery');
 
 var address_template = "https://www.twitch.tv/<channel>/chat?popout";
-var channel = "teamsp00ky";
+var channel = system.env.channel;
+if (!channel) throw new Error("No channel name specified. Specifiy one in ENV.channel");
 
 var address = address_template.replace('<channel>', channel);
 console.log(JSON.stringify({
@@ -31,8 +33,9 @@ page.open(address, function (status) {
      throw new Error("Failed to open channel.");
   }
   console.log(JSON.stringify({
-    type: "info",
-    message: "connected [" + status + "] to [" + address + "]",
+    type: "connection",
+    success: status === 'success',
+    message: "connected: " + status,
     address: address
   }));
 
@@ -54,6 +57,7 @@ page.open(address, function (status) {
         var text = t.find(".message").text();
         var emoticon = t.find(".emoticon").attr("alt");
         data.push({
+          type: "chat message",
           from: from,
           html: html,
           text: text,
@@ -70,7 +74,7 @@ page.open(address, function (status) {
     });
 
     // spit out the data
-    if (data) {
+    if (data && data.length > 0) {
       console.log( JSON.stringify(data) );
     }
 
