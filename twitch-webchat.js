@@ -56,7 +56,7 @@ function start (opts, callback) {
       type: 'status',
       message: 'closed'
     });
-    callback("child process (spawn) exited with code: " + code, null);
+    callback("child process (spawn) closed with code: " + code, null);
   });
 
   spawn.on('error', function (err) {

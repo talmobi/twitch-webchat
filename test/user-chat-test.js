@@ -1,4 +1,4 @@
-var ghost = require('../spawn.js');
+var tw = require('../twitch-webchat.js');
 
 var assert = require('assert');
 var request = require('request');
@@ -40,8 +40,8 @@ describe('Consume featured twitch web chat', function () {
   })();
   var buffer = [];
   var api = null;
-  it('should start twitch-ghost', function (done) {
-    api = ghost.start(channel, function (err, data) {
+  it('should start twitch-webchat', function (done) {
+    api = tw.start(channel, function (err, data) {
       if (err) {
           throw err;
       };
