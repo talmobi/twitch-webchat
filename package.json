@@ -9,9 +9,10 @@
     "test": "mocha test/test.js"
   },
   "devDependencies": {
-    "mocha": "^2.4.5"
+    "mocha": "^2.4.5",
+    "request": "^2.69.0"
   },
-  "name": "twitch-webchat-logger",
+  "name": "twitch-webchat",
   "version": "0.0.0",
   "description": "consume twitch chat web version (non IRC). Same that non-registered users see. No auth required.",
   "main": "spawn.js",

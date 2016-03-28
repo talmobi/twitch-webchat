@@ -12,7 +12,12 @@ var childArgs = [
   path.join(__dirname, "index.js")
 ];
 
-function start (channel, callback) {
+function start (opts, callback) {
+  var channel = opts;
+  if (typeof opts === 'object') {
+    channel = opts.channel;
+  }
+
   if (typeof channel !== 'string') {
     throw new Error("Please specify a channel name (string) as the first argument.");
   }
@@ -26,21 +31,34 @@ function start (channel, callback) {
   // configure consumers
   spawn.stdout.on('data', function (data) {
     //console.log("stdout: %s", data);
-    callback(null, JSON.parse(data));
+    try {
+      callback(null, JSON.parse(data));
+    } catch (err) {
+      callback(err, null);
+    }
   });
 
   spawn.stderr.on('data', function (data) {
-    console.log("stderr: %s", data);
   });
 
   spawn.on('close', function (code) {
-    console.log("child process (spawn) exited with code: %s", code);
+    callback("child process (spawn) exited with code: " + code, null);
   });
 
   spawn.on('error', function (err) {
-    console.error(err);
+    callback(err, null);
   });
 
+  // return shutdown fn
+  return function () {
+    callback(null, {
+      type: 'info',
+      message: "kill requested"
+    });
+    spawn.stdin.pause();
+    spawn.disconnect();
+    spawn.kill();
+  };
 };
 
 if (module !== 'undefined' && module.exports) {

@@ -32,6 +32,7 @@ page.open(address, function (status) {
   if (status !== 'success') {
      throw new Error("Failed to open channel.");
   }
+
   console.log(JSON.stringify({
     type: "connection",
     success: status === 'success',
@@ -58,10 +59,15 @@ page.open(address, function (status) {
         var emoticon = t.find(".emoticon").attr("alt");
         data.push({
           type: "chat message",
+          html: html, // raw html
+
           from: from,
-          html: html,
-          text: text,
-          emoticon: emoticon
+          text: text, // text only
+
+          emoticon: emoticon,
+
+            // plain text message overview
+          message: from + ": " + text
         });
       });
 
@@ -75,7 +81,11 @@ page.open(address, function (status) {
 
     // spit out the data
     if (data && data.length > 0) {
-      console.log( JSON.stringify(data) );
+      var bucket = {
+        type: 'chat messages',
+        messages: data
+      };
+      console.log( JSON.stringify(bucket) );
     }
 
   }, 1000);
