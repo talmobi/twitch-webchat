@@ -22,7 +22,7 @@
     socket.on('messages', function (messages) {
       messages.forEach(function (val, ind, arr) {
         //log(val.from + ": " + val.text)
-        log(val.html)
+        log(val.from + ": " + val.html)
       });
     });
 
