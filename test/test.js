@@ -101,7 +101,7 @@ describe('Consume featured twitch web chat', function () {
       });
       if (f && f.length > 2) {
         var msg = f[2].messages[0];
-        console.log(msg.message.length);
+        console.log(msg.message);
         assert.ok(msg.message.length)
         unsub();
         done();
