@@ -28,8 +28,8 @@ var controls = tr.spawn( channel, function (err, data) {
 // controls.kill() - kill phantojs and childProcess.spawn
 ```
 
-## Demo twitch-webchat.jin.fi
-[http://twitch-webchat.jin.fi/](http://twitch-webchat.jin.fi)
+## Demo
+[http://twitchwebchat.jin.fi/](http://twitchwebchat.jin.fi)
 
 ## About
 Consume chat message from the web version of twitch chat (non IRC). Rquired no login.
