@@ -54,32 +54,33 @@ npm install
 NodeJS
 
 ## API
-
+```js
 module.exports = {
   /*
    * @return {object} controls - exploses the underlying childProcess.spawn and
-                                 a kill() function to kill the process
-                        controls.spawn {object} -  underlying spawn object
-                        controls.kill {function} - kills the spawn process
+   *                              a kill() function to kill the process
+   *                     controls.spawn {object} -  underlying spawn object
+   *                     controls.kill {function} - kills the spawn process
    *
    * @params {string} channel - channel name
-      or
-     @params {object} opts - specify opts.channel and opts.interval
-                        opts.channel - channel name
-                        opts.interval - DOM polling interval (default 1000 ms)
+   *   or
+   *  @params {object} opts - specify opts.channel and opts.interval
+   *                     opts.channel - channel name
+   *                     opts.interval - DOM polling interval (default 1000 ms)
    *
    * @params {function} callback - callback function
-                          err - errors
-                          data - data received
-                            data.type - 'status' or 'chat messages'
-                            data.message - if type === 'status'
-                            data.messages - if type === 'chat messages', array of messages
+   *                       err - errors
+   *                       data - data received
+   *                         data.type - 'status' or 'chat messages'
+   *                         data.message - if type === 'status'
+   *                         data.messages - if type === 'chat messages', array of messages
 
-                              message in data.messages
-                                message.from = t.find(".from").text(); // username, text only
-                                message.html = t.find(".message").html(); // raw html
-                                message.text = t.find(".message").text(); // chat message, text only
-                                message.emoticon = t.find(".emoticon").attr("alt");
+   *                           message in data.messages
+   *                             message.from = t.find(".from").text(); // username, text only
+   *                             message.html = t.find(".message").html(); // raw html
+   *                             message.text = t.find(".message").text(); // chat message, text only
+   *                             message.emoticon = t.find(".emoticon").attr("alt");
    */
   spawn: function ( channel:String || opts:Object, callback (err, data) )
 };
+```
