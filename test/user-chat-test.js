@@ -79,14 +79,16 @@ describe('Consume featured twitch web chat', function () {
     ee.trigger();
   });
 
-  it('receive a user message', function (done) {
+  console.log("wait for user messages...");
+  it('received a user message', function (done) {
     this.timeout(30000);
     var unsub = ee.sub(function () {
       var f = buffer.filter(function (val) {
         return val.type == 'chat messages';
       });
       if (f && f.length > 1) {
-        var msg = f[1].messages[0];
+        var last_index = f.length - 1;
+        var msg = f[ last_index ].messages[0];
         console.log(msg.from + ": " + msg.text);
         assert.ok(msg.from.length);
         assert.ok(msg.text.length);
@@ -97,16 +99,17 @@ describe('Consume featured twitch web chat', function () {
     ee.trigger();
   });
 
-  it('receive another user message', function (done) {
+  it('received another user message', function (done) {
     this.timeout(30000);
     var unsub = ee.sub(function () {
       var f = buffer.filter(function (val) {
         return val.type == 'chat messages';
       });
       if (f && f.length > 2) {
-        var msg = f[2].messages[0];
+        var last_index = f.length - 1;
+        var msg = f[ last_index ].messages[0];
         console.log(msg.message);
-        assert.ok(msg.message.length)
+        assert.ok(msg.message.length);
         unsub();
         done();
       }
@@ -120,6 +123,8 @@ describe('Consume featured twitch web chat', function () {
     assert.equal(typeof api, 'object')
     assert.equal(typeof api.kill, 'function')
 
+    var checks = 0;
+
     api.kill();
     var unsub = ee.sub(function () {
       var f = buffer.filter(function (val) {
@@ -129,9 +134,21 @@ describe('Consume featured twitch web chat', function () {
         var last_index = f.length - 1;
         var msg = f[ last_index ].message;
         console.log(msg);
-        assert.equal(msg, 'kill requested')
-        unsub();
-        done();
+
+        if (msg == 'kill requested') {
+          checks++;
+          delete f[last_index];
+        }
+
+        if (msg == 'closed') {
+          checks++;
+          delete f[last_index];
+        }
+
+        if (checks >= 2) {
+          unsub();
+          done();
+        }
       }
     });
     ee.trigger();

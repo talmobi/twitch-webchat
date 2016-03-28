@@ -6,7 +6,8 @@
   "scripts": {
     "start": "channel=streamerhouse phantomjs --web-security=no index.js",
     "piper": "npm start | node pipe.js",
-    "test": "mocha test/basic-test.js"
+    "test": "mocha test/basic-test.js",
+    "test-all": "mocha test/*.js"
   },
   "devDependencies": {
     "mocha": "^2.4.5",
