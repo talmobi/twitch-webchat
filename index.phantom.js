@@ -1,6 +1,9 @@
 /*
  * Hello! Run with phantomjs! (npm start)
  *
+ * Specify channel name by passing in environment variable to channel.
+ * Specify polling interval (default 1000 ms) to env variable interval.
+ *
  * About:
  *  Connects to twitch chat through phantomjs and polls for
  *  updates to the chat. Alternatively you could get a twitch oauth

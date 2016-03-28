@@ -91,7 +91,7 @@ describe('Consume featured twitch web chat', function () {
         var msg = f[ last_index ].messages[0];
         console.log(msg.from + ": " + msg.text);
         assert.ok(msg.from.length);
-        assert.ok(msg.text.length);
+        assert.ok(msg.html.length);
         unsub();
         done();
       }

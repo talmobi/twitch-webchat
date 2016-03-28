@@ -1,5 +1,9 @@
-// consume from spawn
-
+//
+// creates a child process spawn to run phantomjs with correct
+// setup and env variables (see npm scripts) for easy consumption
+// from nodejs by module.exporting a start function that takes a
+// callback - triggered with updates (such as chat messages).
+//
 var path = require('path');
 var childProcess = require('child_process');
 
@@ -9,7 +13,7 @@ var binPath = phantomjs.path;
 
 var childArgs = [
   "--web-security=no", // enable xss (required for twitch chat)
-  path.join(__dirname, "index.js")
+  path.join(__dirname, "index.phantom.js")
 ];
 
 function start (opts, callback) {
