@@ -30,11 +30,17 @@ function start (opts, callback) {
 
   // configure consumers
   spawn.stdout.on('data', function (data) {
-    console.log("stdout: %s", data);
-    try {
-      callback(null, JSON.parse(data));
-    } catch (err) {
-      callback(err, null);
+    console.log("stdout: <\n%s\n>", data);
+    var split = data.toString().split('\n');
+    for (var i = 0; i < split.length; i++) {
+      var trim = split[i].trim();
+      if (trim && trim.length > 0) {
+        try {
+          callback(null, JSON.parse(trim));
+        } catch (err) {
+          callback(err, null);
+        }
+      }
     }
   });
 
