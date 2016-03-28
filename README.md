@@ -56,6 +56,7 @@ NodeJS
 ## API
 ```js
 module.exports = {
+  spawn: function ( channel:String || opts:Object, callback (err, data) )
   /*
    * @return {object} controls - exploses the underlying childProcess.spawn and
    *                              a kill() function to kill the process
@@ -64,11 +65,11 @@ module.exports = {
    *
    * @params {string} channel - channel name
    *   or
-   *  @params {object} opts - specify opts.channel and opts.interval
+   *  @params {object} opts
    *                     opts.channel - channel name
    *                     opts.interval - DOM polling interval (default 1000 ms)
    *
-   * @params {function} callback - callback function
+   * @params {function} callback - (err, data)
    *                       err - errors
    *                       data - data received
    *                         data.type - 'status' or 'chat messages'
@@ -76,11 +77,9 @@ module.exports = {
    *                         data.messages - if type === 'chat messages', array of messages
 
    *                           message in data.messages
-   *                             message.from = t.find(".from").text(); // username, text only
-   *                             message.html = t.find(".message").html(); // raw html
-   *                             message.text = t.find(".message").text(); // chat message, text only
-   *                             message.emoticon = t.find(".emoticon").attr("alt");
+   *                             message.from = (".from").text(); // username, text only
+   *                             message.html = (".message").html(); // raw html
+   *                             message.text = (".message").text(); // chat message, text only
    */
-  spawn: function ( channel:String || opts:Object, callback (err, data) )
 };
 ```
