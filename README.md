@@ -85,3 +85,6 @@ module.exports = {
 ```js
 npm test
 ```
+
+## LICENSE
+MIT
