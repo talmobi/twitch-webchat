@@ -30,7 +30,7 @@ function start (opts, callback) {
 
   // configure consumers
   spawn.stdout.on('data', function (data) {
-    console.log("stdout: <\n%s\n>", data);
+    //console.log("stdout: <\n%s\n>", data);
     var split = data.toString().split('\n');
     for (var i = 0; i < split.length; i++) {
       var trim = split[i].trim();
