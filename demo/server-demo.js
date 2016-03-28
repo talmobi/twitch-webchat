@@ -38,7 +38,7 @@ io.on('connect', function (socket) {
 
 var port = 30777;
 server.listen(port);
-console.log("server listening on port: %s", port);
+console.log("demo server listening on port: %s", port);
 
 function handleMessages (messages) {
   if (messages.length > 0) {

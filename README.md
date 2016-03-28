@@ -25,14 +25,14 @@ var controls = tr.spawn( channel, function (err, data) {
 });
 
 // controls.spawn - access to underlying childProcess.spawn running phantomjs
-// controls.kill() - kill phantojs and childProcess.spawn
+// controls.kill() - kill phantomjs and childProcess.spawn
 ```
 
 ## Demo
 [http://twitchwebchat.jin.fi/](http://twitchwebchat.jin.fi)
 
 ## About
-Consume chat message from the web version of twitch chat (non IRC). Rquired no login.
+Consume chat message from the web version of twitch chat (non IRC). Requires no login.
 
 ## How
 Using phantomjs we can run a headless browser environment to connect to twitch chat and
@@ -82,4 +82,9 @@ module.exports = {
    *                             message.text = (".message").text(); // chat message, text only
    */
 };
+```
+
+## Test
+```js
+npm test
 ```
