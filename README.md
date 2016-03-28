@@ -50,9 +50,6 @@ cd twitch-webchat
 npm install
 ```
 
-## Requirements
-NodeJS
-
 ## API
 ```js
 module.exports = {
