@@ -30,7 +30,7 @@ function start (opts, callback) {
 
   // configure consumers
   spawn.stdout.on('data', function (data) {
-    //console.log("stdout: %s", data);
+    console.log("stdout: %s", data);
     try {
       callback(null, JSON.parse(data));
     } catch (err) {
@@ -42,6 +42,10 @@ function start (opts, callback) {
   });
 
   spawn.on('close', function (code) {
+    callback(null, {
+      type: 'status',
+      message: 'closed'
+    });
     callback("child process (spawn) exited with code: " + code, null);
   });
 
@@ -49,15 +53,20 @@ function start (opts, callback) {
     callback(err, null);
   });
 
-  // return shutdown fn
-  return function () {
-    callback(null, {
-      type: 'info',
-      message: "kill requested"
-    });
-    spawn.stdin.pause();
-    spawn.disconnect();
-    spawn.kill();
+  // return api
+  return {
+    // expose spawn
+    spawn: spawn,
+
+    // process shutdown fn
+    kill: function () {
+      callback(null, {
+        type: 'status',
+        message: "kill requested"
+      });
+      spawn.stdin.pause();
+      spawn.kill();
+    }
   };
 };
 

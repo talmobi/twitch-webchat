@@ -39,9 +39,9 @@ describe('Consume featured twitch web chat', function () {
     }
   })();
   var buffer = [];
-  var kill = null;
+  var api = null;
   it('should start twitch-ghost', function (done) {
-    kill = ghost.start(channel, function (err, data) {
+    api = ghost.start(channel, function (err, data) {
       if (err) {
           throw err;
       };
@@ -112,6 +112,25 @@ describe('Consume featured twitch web chat', function () {
       ee.trigger();
     });
 
+  });
+
+  it('should shutdown phantom spawn process successfully', function (done) {
+    apapi.kill();
+    this.timeout(5000);
+    var unsub = ee.sub(function () {
+      var f = buffer.filter(function (val) {
+        return val.type == 'status';
+      });
+      if (f && f.length > 1) {
+        var last_index = f.length - 1;
+        var msg = f[ last_index ].messages[ last_index ];
+        console.log(msg.message);
+        assert.equal(msg.message, 'closed')
+        unsub();
+        done();
+      }
+    });
+    ee.trigger();
   });
 
 });

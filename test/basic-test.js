@@ -39,19 +39,23 @@ describe('Consume featured twitch web chat', function () {
     }
   })();
   var buffer = [];
-  var kill = null;
+  var api = null;
   it('should start twitch-ghost', function (done) {
-    kill = ghost.start(channel, function (err, data) {
+    api = ghost.start(channel, function (err, data) {
       if (err) {
           throw err;
       };
 
-      if (data) {
+      if (data && typeof data === 'object') {
         buffer.push(data);
         ee.trigger();
 
-        if (data.type == 'connection' && data.success) {
-          done();
+        if (data.type == 'connection') {
+          if (data.success) {
+            done();
+          } else {
+            done(new Error("page open failed."));
+          }
         }
       }
     });
@@ -75,43 +79,40 @@ describe('Consume featured twitch web chat', function () {
     ee.trigger();
   });
 
-  describe('Extra: read in user supplied messages (if any)', function () {
+  it('should shutdown phantom spawn process successfully', function (done) {
+    this.timeout(5000);
+    assert.equal(typeof api, 'object')
+    assert.equal(typeof api.kill, 'function')
 
-    it('receive a user message', function (done) {
-      this.timeout(20000);
-      var unsub = ee.sub(function () {
-        var f = buffer.filter(function (val) {
-          return val.type == 'chat messages';
-        });
-        if (f && f.length > 1) {
-          var msg = f[1].messages[0];
-          console.log(msg.from + ": " + msg.text);
-          assert.ok(msg.from.length);
-          assert.ok(msg.text.length);
+    var checks = 0;
+
+    api.kill();
+    var unsub = ee.sub(function () {
+      var f = buffer.filter(function (val) {
+        return val.type == 'status';
+      });
+      if (f && f.length > 0) {
+        var last_index = f.length - 1;
+        var msg = f[ last_index ].message;
+        console.log(msg);
+
+        if (msg == 'kill requested') {
+          checks++;
+          delete f[last_index];
+        }
+
+        if (msg == 'closed') {
+          checks++;
+          delete f[last_index];
+        }
+
+        if (checks >= 2) {
           unsub();
           done();
         }
-      });
-      ee.trigger();
+      }
     });
-
-    it('receive another user message', function (done) {
-      this.timeout(20000);
-      var unsub = ee.sub(function () {
-        var f = buffer.filter(function (val) {
-          return val.type == 'chat messages';
-        });
-        if (f && f.length > 2) {
-          var msg = f[2].messages[0];
-          console.log(msg.message);
-          assert.ok(msg.message.length)
-          unsub();
-          done();
-        }
-      });
-      ee.trigger();
-    });
-
+    ee.trigger();
   });
 
 });

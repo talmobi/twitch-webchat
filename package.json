@@ -4,9 +4,9 @@
     "phantomjs-prebuilt": "^2.1.7"
   },
   "scripts": {
-    "start": "phantomjs --web-security=no index.js",
+    "start": "channel=streamerhouse phantomjs --web-security=no index.js",
     "piper": "npm start | node pipe.js",
-    "test": "mocha test/test.js"
+    "test": "mocha test/basic-test.js"
   },
   "devDependencies": {
     "mocha": "^2.4.5",

@@ -13,36 +13,48 @@ var system = require('system');
 var page = require('webpage').create();
 var $ = require('jquery');
 
+page.viewportSize = { width: 1, height: 1 };
+
 var address_template = "https://www.twitch.tv/<channel>/chat?popout";
 var channel = system.env.channel;
+var interval = system.env.interval || 1000; // polling interval
 if (!channel) throw new Error("No channel name specified. Specifiy one in ENV.channel");
 
 var address = address_template.replace('<channel>', channel);
-console.log(JSON.stringify({
-  type: "info",
+
+function print (o) {
+  if (typeof o === 'object') {
+    o.channel = channel;
+    console.log(JSON.stringify( o ).trim());
+  }
+};
+
+print({
+  type: "status",
   message: "starting",
-}));
+  interval: interval
+});
 
 page.open(address, function (status) {
-  console.log(JSON.stringify({
-    type: "info",
+  print({
+    type: "status",
     message: "page opened"
-  }));
+  });
+
+  print({
+    type: "connection",
+    success: status === 'success',
+    message: "connection: " + status,
+    address: address
+  });
 
   if (status !== 'success') {
      throw new Error("Failed to open channel.");
   }
 
-  console.log(JSON.stringify({
-    type: "connection",
-    success: status === 'success',
-    message: "connected: " + status,
-    address: address
-  }));
-
   // start polling the DOM for changes
-  setInterval(function () {
-    //console.log("interval tick");
+  var ticker = function () {
+    //console.print("interval tick");
 
     var data = page.evaluate(function () {
       //var messages = $(".chat-messages .tse-content div .message")
@@ -50,9 +62,9 @@ page.open(address, function (status) {
                      .slice(0);
 
       var data = [];
-      // grab the info we want
+      // grab the status we want
       messages.each(function (index) {
-        var t= $(this);
+        var t = $(this);
         var from = t.find(".from").text();
         var html = t.find(".message").html();
         var text = t.find(".message").text();
@@ -85,8 +97,11 @@ page.open(address, function (status) {
         type: 'chat messages',
         messages: data
       };
-      console.log( JSON.stringify(bucket) );
+      print( bucket );
     }
 
-  }, 1000);
+    setTimeout(ticker, interval);
+  }
+  setTimeout(ticker, interval);
+
 });
