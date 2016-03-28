@@ -41,7 +41,7 @@ describe('Consume featured twitch web chat', function () {
   var buffer = [];
   var api = null;
   it('should start twitch-webchat', function (done) {
-    api = tw.start(channel, function (err, data) {
+    api = tw.start({channel: channel, interval: 1111}, function (err, data) {
       if (err) {
           throw err;
       };

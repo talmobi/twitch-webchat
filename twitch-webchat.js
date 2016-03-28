@@ -18,9 +18,16 @@ var childArgs = [
 
 function start (opts, callback) {
   var channel = opts;
+  var interval = 1000;
   if (typeof opts === 'object') {
     channel = opts.channel;
+    interval = opts.interval || 1000;
   }
+
+  var env = {
+    channel: channel,
+    interval: interval
+  };
 
   if (typeof channel !== 'string') {
     throw new Error("Please specify a channel name (string) as the first argument.");
@@ -30,7 +37,7 @@ function start (opts, callback) {
   }
 
   // create the child process spawn
-  var spawn = childProcess.spawn(binPath, childArgs, {env: {channel: channel}});
+  var spawn = childProcess.spawn(binPath, childArgs, {env: env});
 
   // configure consumers
   spawn.stdout.on('data', function (data) {
@@ -57,6 +64,8 @@ function start (opts, callback) {
       message: 'closed'
     });
     callback("child process (spawn) closed with code: " + code, null);
+    spawn.stdin.pause();
+    spawn.kill();
   });
 
   spawn.on('error', function (err) {
@@ -82,6 +91,7 @@ function start (opts, callback) {
 
 if (module !== 'undefined' && module.exports) {
   module.exports = {
+    spawn: start,
     start: start
   };
 }
