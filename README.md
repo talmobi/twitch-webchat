@@ -50,6 +50,13 @@ cd twitch-webchat
 npm install
 ```
 
+## Common Issues
+Phantomjs has a hidden dependency lacking in some linux distros, see: https://github.com/ariya/phantomjs/issues/10904
+To fix simply install it manually with your favourite package manager:
+```js
+sudo apt-get install libfontconfig
+```
+
 ## API
 ```js
 module.exports = {
