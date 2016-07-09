@@ -40,14 +40,19 @@ function start (opts, callback) {
   var spawn = childProcess.spawn(binPath, childArgs, {env: env});
 
   // configure consumers
+  var buffer = ''
   spawn.stdout.on('data', function (data) {
     //console.log("stdout: <\n%s\n>", data);
-    var split = data.toString().split('\n');
-    for (var i = 0; i < split.length; i++) {
+    buffer += data.toString()
+    var split = buffer.split('\n');
+    buffer = split[split.length - 1]
+
+    for (var i = 0; i < split.length - 1; i++) {
       var trim = split[i].trim();
       if (trim && trim.length > 0) {
         try {
-          callback(null, JSON.parse(trim));
+          var p = JSON.parse(trim);
+          callback(null, p);
         } catch (err) {
           callback(err, null);
         }
