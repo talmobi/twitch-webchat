@@ -4,7 +4,7 @@
 ```js
 var tw = require('twitch-webchat');
 var channel = 'sodapoppin';
-var controls = tr.spawn( channel, function (err, data) {
+var controls = tw.spawn( channel, function (err, data) {
   if (err) throw err;
 
   switch (data.type) {
