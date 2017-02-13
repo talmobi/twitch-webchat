@@ -9,6 +9,8 @@ var _timeout = setTimeout(function () {
 
 var url = 'https://www.twitch.tv/directory/all'
 
+page.reload()
+
 page.open(url, function (status) {
   clearTimeout(_timeout)
   if (status !== 'success') {

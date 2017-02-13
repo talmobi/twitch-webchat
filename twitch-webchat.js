@@ -70,6 +70,9 @@ function spawn (opts, callback) {
                 callback(undefined, message);
               })
               break
+            case 'info':
+              callback(undefined, p);
+              break
           }
         } catch (err) {
           callback(err);
@@ -82,7 +85,12 @@ function spawn (opts, callback) {
     callback(data)
   });
 
-  return spawn // return underlying spawn
+  return {
+    kill: function () { // shorthand for killing spawn process
+      spawn.kill()
+    },
+    spawn: spawn // expose underlying spawn process
+  }
 };
 
 module.exports.spawn = spawn

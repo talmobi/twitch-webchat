@@ -17,14 +17,30 @@ if (!channel) throw new Error('Error: Missing enviroment variable CHANNEL=<strin
 var URL_TEMPLATE = "https://www.twitch.tv/$channel/chat?popout"
 var url = URL_TEMPLATE.replace('$channel', channel)
 
+function emit (json) {
+  console.log(JSON.stringify(json))
+}
+
+emit({
+  type: 'info',
+  text: 'opening page...'
+})
+
 page.open(url, function (status) {
   if (status !== 'success') {
+    emit({
+      type: 'info',
+      text: 'failed to open page'
+    })
     phantom.exit(1)
   } else {
+    emit({
+      type: 'info',
+      text: 'page opened'
+    })
     // start polling the DOM for changes
     setTimeout(tick, interval)
     function tick () {
-
       var data = page.evaluate(function () {
         var lines = document.querySelectorAll('.chat-messages .tse-content .chat-line')
 
@@ -34,6 +50,7 @@ page.open(url, function (status) {
           var html = line.querySelector('.message').innerHTML
 
           return {
+            type: 'chat',
             from: from,
             text: text,
             html: html,
@@ -54,12 +71,16 @@ page.open(url, function (status) {
 
       // spit out the data
       if (data && data.length > 0) {
-        var json = {
+        emit({
           type: 'messages',
           messages: data
-        }
-        console.log(JSON.stringify(json))
+        })
       }
+
+      emit({
+        type: 'info',
+        text: 'DOM polled'
+      })
 
       setTimeout(tick, interval)
     }
