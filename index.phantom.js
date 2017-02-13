@@ -5,8 +5,9 @@ var page = require('webpage').create()
 page.viewportSize = { width: 1, height: 1 }
 
 var _timeout = setTimeout(function () {
+  throw new Error('error: page load timed out')
   phantom.exit(1)
-}, 10000)
+}, 16000)
 
 
 var interval = system.env.INTERVAL || system.env.interval || 1000 // milliseconds
@@ -18,7 +19,7 @@ var URL_TEMPLATE = "https://www.twitch.tv/$channel/chat?popout"
 var url = URL_TEMPLATE.replace('$channel', channel)
 
 function emit (json) {
-  console.log(JSON.stringify(json))
+  system.stdout.write(JSON.stringify(json) + '\n')
 }
 
 emit({
@@ -27,6 +28,8 @@ emit({
 })
 
 page.open(url, function (status) {
+  clearTimeout(_timeout)
+
   if (status !== 'success') {
     emit({
       type: 'info',
@@ -40,26 +43,30 @@ page.open(url, function (status) {
     })
     // start polling the DOM for changes
     setTimeout(tick, interval)
+
     function tick () {
       var data = page.evaluate(function () {
         var lines = document.querySelectorAll('.chat-messages .tse-content .chat-line')
 
-        var messages = [].map.call(lines, function (line) {
-          var from = line.querySelector('.from').textContent
-          var text = line.querySelector('.message').textContent
-          var html = line.querySelector('.message').innerHTML
+        if (!(lines && lines.length > 0)) return []
 
-          return {
+        var messages = []
+        ;[].forEach.call(lines, function (line) {
+          var from = line.querySelector('.from')
+          var text = line.querySelector('.message')
+          var html = line.querySelector('.message')
+
+          messages.push({
             type: 'chat',
-            from: from,
-            text: text,
-            html: html,
-          }
+            from: from && from.textContent,
+            text: text && text.textContent,
+            html: html && html.innerHTML
+          })
         })
 
         // remove the parsed messages from the DOM
         ;[].forEach.call(lines, function (line) {
-          line.parentNode.removeChild(line)
+          line && line.parentNode && line.parentNode.removeChild(line)
         })
 
         // return the data back to our script context

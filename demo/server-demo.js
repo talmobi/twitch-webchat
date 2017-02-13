@@ -58,28 +58,25 @@ var running = false;
 function run (channel) {
   running = true;
 
-  var api = tw.start(channel, function (err, data) {
+  var spawn = tw.spawn(channel, function (err, data) {
     if (err) {
-      api.kill();
+      spawn.kill();
+      handleStatus('error: ' + err);
       running = false;
-      if (typeof err === 'string' && err.indexOf('child process (spawn) closed') >= 0) {
-        // silently ignore, this is ok
-      } else {
-        throw err;
-      }
+      throw err;
     } else {
       switch (data.type) {
-        case 'chat messages':
+        case 'chat':
             var messages = data.messages;
             //messages.forEach(function (val, ind, arr) {
             //  var message = val;
             //  handleMessage(message.message);
             //});
-            handleMessages(messages);
+            handleMessages([data]);
           break;
-        case 'status':
+        case 'info':
             var message = data.message;
-            handleStatus(message);
+            handleStatus('info: ' + data.text);
           break;
       };
     }
@@ -87,6 +84,7 @@ function run (channel) {
 
   setTimeout(function () {
     handleStatus("timer expired - shutting down.");
-    api.kill();
+    spawn.kill();
+    running = false
   }, 30000);
 };

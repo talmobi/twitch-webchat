@@ -42,7 +42,7 @@ function spawn (opts, callback) {
   process.on('error', cleanup)
 
   function cleanup () {
-    // console.log('cleaning up')
+    console.log('cleaning up')
     try {
       spawn.kill()
     } catch (err) {}
@@ -62,7 +62,7 @@ function spawn (opts, callback) {
       var trim = split[i].trim();
       if (trim && trim.length > 0) {
         try {
-          // console.log('trim: ' + trim)
+          console.log('trim: ' + trim)
           var p = JSON.parse(trim);
           switch (p.type) {
             case 'messages':
@@ -85,12 +85,7 @@ function spawn (opts, callback) {
     callback(data)
   });
 
-  return {
-    kill: function () { // shorthand for killing spawn process
-      spawn.kill()
-    },
-    spawn: spawn // expose underlying spawn process
-  }
+  return spawn // return underlying spawn process
 };
 
 module.exports.spawn = spawn
