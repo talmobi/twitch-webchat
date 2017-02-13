@@ -50,8 +50,3 @@ exports.fetch = function (callback) {
     } catch (err) {}
   }
 }
-
-exports.fetch(function (err, channels) {
-  if (err) throw err
-  console.log(channels)
-})
