@@ -62,7 +62,7 @@ function spawn (opts, callback) {
       var trim = split[i].trim();
       if (trim && trim.length > 0) {
         try {
-          console.log('trim: ' + trim)
+          // console.log('trim: ' + trim)
           var p = JSON.parse(trim);
           switch (p.type) {
             case 'messages':

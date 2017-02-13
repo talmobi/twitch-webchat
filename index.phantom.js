@@ -85,7 +85,7 @@ page.open(url, function (status) {
       }
 
       emit({
-        type: 'info',
+        type: 'polling',
         text: 'DOM polled'
       })
 
