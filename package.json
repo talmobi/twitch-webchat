@@ -1,6 +1,6 @@
 {
   "name": "twitch-webchat",
-  "version": "0.0.4",
+  "version": "1.0.0",
   "description": "consume twitch chat web version (non IRC). Same that non-registered users see. No auth required.",
   "main": "twitch-webchat.js",
   "scripts": {
