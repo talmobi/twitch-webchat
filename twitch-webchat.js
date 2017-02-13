@@ -77,6 +77,29 @@ function start (opts, callback) {
     callback(err, null);
   });
 
+  function destroy () {
+    callback(null, {
+      type: 'status',
+      message: "kill requested"
+    });
+    spawn.stdin.pause();
+    spawn.kill();
+  }
+
+  function cleanup () {
+    console.log('cleaning up')
+    try {
+      spawn.kill()
+    } catch (err) {}
+    try {
+      process.kill(spawn)
+    } catch (err) {}
+  }
+
+  process.on('close', cleanup)
+  process.on('exit', cleanup)
+  process.on('error', cleanup)
+
   // return api
   return {
     // expose spawn
@@ -84,12 +107,7 @@ function start (opts, callback) {
 
     // process shutdown fn
     kill: function () {
-      callback(null, {
-        type: 'status',
-        message: "kill requested"
-      });
-      spawn.stdin.pause();
-      spawn.kill();
+      destroy()
     }
   };
 };
