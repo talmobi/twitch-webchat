@@ -1,8 +1,8 @@
 {
-  "dependencies": {
-    "jquery": "^2.2.2",
-    "phantomjs-prebuilt": "^2.1.7"
-  },
+  "name": "twitch-webchat",
+  "version": "0.0.4",
+  "description": "consume twitch chat web version (non IRC). Same that non-registered users see. No auth required.",
+  "main": "twitch-webchat.js",
   "scripts": {
     "start": "node demo/server-demo.js",
     "piper": "npm start | node pipe.js",
@@ -10,26 +10,10 @@
     "test": "mocha test/basic-test.js",
     "test-all": "mocha test/*.js"
   },
-  "devDependencies": {
-    "express": "^4.13.4",
-    "mocha": "^2.4.5",
-    "request": "^2.69.0",
-    "socket.io": "^1.4.5"
-  },
-  "name": "twitch-webchat",
-  "version": "0.0.4",
-  "description": "consume twitch chat web version (non IRC). Same that non-registered users see. No auth required.",
-  "main": "twitch-webchat.js",
-  "directories": {
-    "test": "test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/talmobi/twitch-webchat-logger.git"
-  },
   "keywords": [
     "twitch",
     "web",
+    "webchat",
     "chat",
     "log",
     "logger",
@@ -37,8 +21,22 @@
   ],
   "author": "talmobi <talmo.christian@gmail.com> (http://jin.fi)",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/talmobi/twitch-webchat-logger/issues"
+  "homepage": "https://github.com/talmobi/twitch-webchat#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/talmobi/twitch-webchat.git"
   },
-  "homepage": "https://github.com/talmobi/twitch-webchat-logger#readme"
+  "bugs": {
+    "url": "https://github.com/talmobi/twitch-webchat/issues"
+  },
+  "dependencies": {
+    "jquery": "2.2.2",
+    "phantomjs-prebuilt": "2.1.7"
+  },
+  "devDependencies": {
+    "express": "^4.13.4",
+    "mocha": "^2.4.5",
+    "request": "^2.69.0",
+    "socket.io": "^1.4.5"
+  }
 }
