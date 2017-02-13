@@ -1,20 +1,20 @@
 /* This is a phantomjs script and needs to be run with the phantomjs binary */
-var page = require('webpage').create();
-var $ = require('jquery');
-page.viewportSize = { width: 1, height: 1 };
 
-var _address = 'https://www.twitch.tv/directory/all'
+var page = require('webpage').create()
+page.viewportSize = { width: 1, height: 1 }
 
 var _timeout = setTimeout(function () {
   phantom.exit(1)
 }, 10000)
 
-page.open(_address, function (status) {
+var url = 'https://www.twitch.tv/directory/all'
+
+page.open(url, function (status) {
   clearTimeout(_timeout)
   if (status !== 'success') {
     phantom.exit(1)
   } else {
-    // var body = page.evaluate(function () { return document.innerHTML })
+    var body = page.evaluate(function () { return document.innerHTML })
 
     var channels = page.evaluate(function () {
       var dict = {}

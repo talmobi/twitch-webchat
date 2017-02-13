@@ -1,27 +1,24 @@
-//
-// creates a child process spawn to run phantomjs with correct
-// setup and env variables (see npm scripts) for easy consumption
-// from nodejs by module.exporting a start function that takes a
-// callback - triggered with updates (such as chat messages).
-//
-var path = require('path');
-var childProcess = require('child_process');
+'use strict'
+
+var path = require('path')
+var childProcess = require('child_process')
 
 // locate phantomjs prebuilt binary
-var phantomjs = require('phantomjs-prebuilt');
-var binPath = phantomjs.path;
+var phantomjs = require('phantomjs-prebuilt')
+var binPath = phantomjs.path
 
 var childArgs = [
   "--web-security=no", // enable xss (required for twitch chat)
   path.join(__dirname, "index.phantom.js")
-];
+]
 
-function start (opts, callback) {
-  var channel = opts;
-  var interval = 1000;
+function spawn (opts, callback) {
+  var channel = opts
+  var interval = 1000
   if (typeof opts === 'object') {
-    channel = opts.channel;
-    interval = opts.interval || 1000;
+    channel = opts.channel
+    interval = opts.interval || 1000
+    callback = opts.callback || callback
   }
 
   var env = {
@@ -30,64 +27,22 @@ function start (opts, callback) {
   };
 
   if (typeof channel !== 'string') {
-    throw new Error("Please specify a channel name (string) as the first argument.");
+    throw new Error('Error: Channel name missing: A channel name must be provided as the first argument or within the options object')
   }
   if (typeof callback !== 'function') {
-    throw new Error("Please specify a callback function as the last argument.");
+    throw new Error('Error: Missing callback function: A callback function must be provided as the second argument or within the options object')
   }
 
   // create the child process spawn
   var spawn = childProcess.spawn(binPath, childArgs, {env: env});
 
-  // configure consumers
-  var buffer = ''
-  spawn.stdout.on('data', function (data) {
-    //console.log("stdout: <\n%s\n>", data);
-    buffer += data.toString()
-    var split = buffer.split('\n');
-    buffer = split[split.length - 1]
-
-    for (var i = 0; i < split.length - 1; i++) {
-      var trim = split[i].trim();
-      if (trim && trim.length > 0) {
-        try {
-          var p = JSON.parse(trim);
-          callback(null, p);
-        } catch (err) {
-          callback(err, null);
-        }
-      }
-    }
-  });
-
-  spawn.stderr.on('data', function (data) {
-  });
-
-  spawn.on('close', function (code) {
-    callback(null, {
-      type: 'status',
-      message: 'closed'
-    });
-    callback("child process (spawn) closed with code: " + code, null);
-    spawn.stdin.pause();
-    spawn.kill();
-  });
-
-  spawn.on('error', function (err) {
-    callback(err, null);
-  });
-
-  function destroy () {
-    callback(null, {
-      type: 'status',
-      message: "kill requested"
-    });
-    spawn.stdin.pause();
-    spawn.kill();
-  }
+  // bind cleanup functions (makes sure the underlying phantomjs process gets cleaned up when the main process exits)
+  process.on('close', cleanup)
+  process.on('exit', cleanup)
+  process.on('error', cleanup)
 
   function cleanup () {
-    console.log('cleaning up')
+    // console.log('cleaning up')
     try {
       spawn.kill()
     } catch (err) {}
@@ -96,25 +51,38 @@ function start (opts, callback) {
     } catch (err) {}
   }
 
-  process.on('close', cleanup)
-  process.on('exit', cleanup)
-  process.on('error', cleanup)
+  // configure consumers
+  var buffer = ''
+  spawn.stdout.on('data', function (data) {
+    buffer += data.toString()
+    var split = buffer.split('\n');
+    buffer = split[split.length - 1]
 
-  // return api
-  return {
-    // expose spawn
-    spawn: spawn,
-
-    // process shutdown fn
-    kill: function () {
-      destroy()
+    for (var i = 0; i < split.length - 1; i++) {
+      var trim = split[i].trim();
+      if (trim && trim.length > 0) {
+        try {
+          // console.log('trim: ' + trim)
+          var p = JSON.parse(trim);
+          switch (p.type) {
+            case 'messages':
+              p.messages.forEach(function (message) {
+                callback(undefined, message);
+              })
+              break
+          }
+        } catch (err) {
+          callback(err);
+        }
+      }
     }
-  };
+  });
+
+  spawn.stderr.on('data', function (data) {
+    callback(data)
+  });
+
+  return spawn // return underlying spawn
 };
 
-if (module !== 'undefined' && module.exports) {
-  module.exports = {
-    spawn: start,
-    start: start
-  };
-}
+module.exports.spawn = spawn

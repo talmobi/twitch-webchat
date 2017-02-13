@@ -1,3 +1,5 @@
+'use strict'
+
 var path = require('path')
 var childProcess = require('child_process')
 
@@ -10,7 +12,7 @@ var childArgs = [
   path.join(__dirname, 'get-top-twitch-streamers.phantom.js')
 ];
 
-exports.fetch = function (callback) {
+function fetch (callback) {
   // create the child process spawn
   var spawn = childProcess.spawn(binPath, childArgs);
 
@@ -24,11 +26,11 @@ exports.fetch = function (callback) {
   })
 
   spawn.on('close', function () {
-    console.log('spawn close')
-    console.log('buffer: ' + buffer.trim())
+    // console.log('spawn close')
+    // console.log('buffer: ' + buffer.trim())
     try {
       var channels = JSON.parse(buffer)
-      console.log('top channel: ' + channels[0])
+      // console.log('top channel: ' + channels[0])
       callback(undefined, channels)
     } catch (err) {
       callback(err)
@@ -41,7 +43,7 @@ exports.fetch = function (callback) {
   })
 
   function cleanup () {
-    console.log('cleaning up')
+    // console.log('cleaning up')
     try {
       spawn.kill()
     } catch (err) {}
@@ -50,3 +52,5 @@ exports.fetch = function (callback) {
     } catch (err) {}
   }
 }
+
+module.exports.fetch = fetch

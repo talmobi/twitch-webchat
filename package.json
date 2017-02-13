@@ -7,8 +7,7 @@
     "start": "node demo/server-demo.js",
     "piper": "npm start | node pipe.js",
     "direct": "channel=streamerhouse phantomjs --web-security=no index.phantom.js",
-    "test": "mocha test/basic-test.js",
-    "test-all": "mocha test/*.js"
+    "test": "tape test/*.js"
   },
   "keywords": [
     "twitch",
@@ -30,13 +29,13 @@
     "url": "https://github.com/talmobi/twitch-webchat/issues"
   },
   "dependencies": {
-    "jquery": "2.2.2",
-    "phantomjs-prebuilt": "2.1.7"
+    "phantomjs-prebuilt": "2.1.14"
   },
   "devDependencies": {
+    "cheerio": "^0.22.0",
     "express": "^4.13.4",
-    "mocha": "^2.4.5",
     "request": "^2.69.0",
-    "socket.io": "^1.4.5"
+    "socket.io": "^1.4.5",
+    "tape": "^4.6.3"
   }
 }
