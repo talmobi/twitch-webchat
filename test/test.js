@@ -5,7 +5,7 @@ var request = require('request');
 
 var getTopStreamers = require('../get-top-twitch-streamers.js').fetch
 
-test('Get chat messages from top live streamer', function (t) {
+test('Get chat messages from top live streamer', { timeout: 30 * 1000 }, function (t) {
   t.plan(3 + 3 + 1 + 1 + 3)
   getTopStreamers(function (err, channels) {
     t.error(err, 'successfully got top channel')
