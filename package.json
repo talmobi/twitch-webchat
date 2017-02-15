@@ -1,0 +1,30 @@
+{
+  "name": "twitch-webchat",
+  "version": "0.0.0",
+  "description": "Consume twitch webchat through a headless browser (no IRC, no login)",
+  "main": "index.js",
+  "bin": {
+    "twitch-webchat": "./cli.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/talmobi/twitch-webchat"
+  },
+  "keywords": [
+    "twitch",
+    "chat",
+    "web",
+    "browser",
+    "headless",
+    "nightmare"
+  ],
+  "author": "talmobi <talmo.christian@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "minimist": "^1.2.0",
+    "nightmare": "^2.9.1"
+  }
+}
