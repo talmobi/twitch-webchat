@@ -2,7 +2,66 @@
 
 var Nightmare = require('nightmare')
 
-module.exports = function twitchWebchat (opts, callback) {
+function getTopStreamers (callback) {
+  var url = 'https://www.twitch.tv/directory/all'
+
+  var nightmare = Nightmare({
+    width: 420,
+    height: 720,
+    show: false
+  })
+
+  if (typeof callback !== 'function') {
+    throw new Error('Error: Missing callback function: A callback function must be provided')
+  }
+
+  nightmare
+    .goto(url)
+    .wait('#directory-list .content .thumb a') // wait for initial load
+    .then(function () {
+      nightmare
+        .evaluate(function () {
+          var dict = {}
+          var anchors = document.querySelectorAll('#directory-list .content .thumb a')
+
+          for (var i = 0; i < anchors.length; i++) {
+            try {
+              var a = anchors[i]
+              if (a && a.href) dict[a.href] = decodeURI(a.href)
+            } catch (err) {}
+          }
+
+          return Object.keys(dict).map(function (key) {
+            return dict[key]
+          })
+        })
+        .then(function (channels) {
+          if (channels) { // parse channel url's to simple channel names
+            channels = channels.map(function (channel) {
+              while (channel[channel.length - 1] === '/') {
+                channel = channel.substr(0, channel.length - 1)
+              }
+              return channel.split('/').reverse()[0]
+            })
+            callback(undefined, channels)
+          } else {
+            callback(undefined, [])
+          }
+
+          nightmare.end().then()
+        })
+        .catch(function (error) {
+          callback(error)
+          // throw error
+        })
+    })
+    .catch(function (error) {
+      callback(error)
+      // throw error
+    })
+}
+
+function start (opts, callback) {
   var
     channel = opts,
     interval = 1000
@@ -163,8 +222,7 @@ module.exports = function twitchWebchat (opts, callback) {
       type: 'exit',
       text: 'exit'
     })
-    nightmare.end()
-    process.exit()
+    // process.exit()
   }
 
   nightmare.proc.on('close', function () {
@@ -178,4 +236,9 @@ module.exports = function twitchWebchat (opts, callback) {
       exit()
     }
   }
+}
+
+module.exports = {
+  start: start,
+  getTopStreamers: getTopStreamers
 }

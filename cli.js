@@ -3,11 +3,12 @@
 var tw = require('./index.js')
 
 var argv = require('minimist')(process.argv.slice(2), {
-  boolean: ['help', 'version', 'color'],
+  boolean: ['help', 'version', 'color', 'top'],
   alias: {
     h: 'help',
     v: 'version',
-    c: 'color'
+    c: 'color',
+    t: 'top'
   }
 })
 
@@ -41,6 +42,13 @@ if (argv.version) {
   process.exit()
 }
 
+if (argv.top) {
+  return tw.getTopStreamers(function (err, channels) {
+    if (err) throw err
+    console.log(channels)
+  })
+}
+
 var channel = argv._[0]
 if (!channel || typeof channel !== 'string' || channel.length < 1) {
   console.error('Error: Missing channel name!')
@@ -69,7 +77,7 @@ function badge (letter, color) {
   return ('[' + cc(letter, c[color]) + ']')
 }
 
-var ctrl = tw(channel, function (err, msg) {
+var ctrl = tw.start(channel, function (err, msg) {
   switch (msg.type) {
     case 'chat':
       if (!msg.text || !msg.from) {
@@ -94,6 +102,9 @@ var ctrl = tw(channel, function (err, msg) {
       console.log('')
       break
     case 'tick': break // ignore DOM polling status messages
+    case 'exit':
+      process.exit()
+      break
     default:
       console.log(msg.type + ': ' + msg.text)
   }
