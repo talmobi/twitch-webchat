@@ -8,7 +8,8 @@ function getTopStreamers (callback) {
   var nightmare = Nightmare({
     width: 420,
     height: 720,
-    show: false
+    show: false,
+    focusable: false
   })
 
   if (typeof callback !== 'function') {
@@ -162,6 +163,12 @@ function start (opts, callback) {
                     text: text && parse(text.textContent)
                   })
                 } else {
+                  var emoticonTooltips = html && html.querySelectorAll('.balloon-wrapper > .balloon--tooltip')
+                  // remove emoticon tooltip texts
+                  ;[].forEach.call(emoticonTooltips, function (tooltip) {
+                    tooltip && tooltip.parentNode && tooltip.parentNode.removeChild(tooltip)
+                  })
+
                   messages.push({
                     type: 'chat',
                     from: from && parse(from.textContent),
@@ -218,15 +225,14 @@ function start (opts, callback) {
     })
 
   function exit () {
+    nightmare.end().then()
+  }
+
+  nightmare.proc.on('exit', function () {
     callback(undefined, {
       type: 'exit',
       text: 'exit'
     })
-    // process.exit()
-  }
-
-  nightmare.proc.on('close', function () {
-    exit()
   })
 
   return {

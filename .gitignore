@@ -3,5 +3,5 @@ node_modules
 " vim temp files
 *.sw?
 
-" max files
+" mac files
 *.DS_Store
