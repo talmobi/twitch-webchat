@@ -163,6 +163,8 @@ function start (opts, callback) {
                     text: text && parse(text.textContent)
                   })
                 } else {
+                  var text = text && parse(text.textContent)
+
                   var emoticonTooltips = html && html.querySelectorAll('.balloon-wrapper > .balloon--tooltip')
                   // remove emoticon tooltip texts
                   ;[].forEach.call(emoticonTooltips, function (tooltip) {
@@ -172,7 +174,7 @@ function start (opts, callback) {
                   messages.push({
                     type: 'chat',
                     from: from && parse(from.textContent),
-                    text: text && parse(text.textContent),
+                    text: text,
                     html: html && parse(html.innerHTML),
                     moderator: moderator,
                     subscriber: subscriber,
