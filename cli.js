@@ -80,7 +80,7 @@ function badge (letter, color) {
 var ctrl = tw.start(channel, function (err, msg) {
   switch (msg.type) {
     case 'chat':
-      if (!msg.text || !msg.from) {
+      if (!msg.html || !msg.from) {
         console.log('')
         console.log(' --- unknown message --- ')
         console.log('')
