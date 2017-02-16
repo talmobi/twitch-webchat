@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "express": "^4.14.1",
-    "socket.io": "^1.7.2"
+    "socket.io": "^1.7.2",
+    "tape": "^4.6.3"
   }
 }

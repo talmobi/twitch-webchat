@@ -1,62 +1,52 @@
-var tw = require('../twitch-webchat.js');
+var tw = require('../index.js');
 
 var test = require('tape')
-var request = require('request');
 
-var getTopStreamers = require('../get-top-twitch-streamers.js').fetch
+test('Get list of top live streamers', { timeout: 30 * 1000 }, function (t) {
+  t.plan(5)
+  tw.getTopStreamers(function (err, channels) {
+    t.error(err)
+    t.ok(Array.isArray(channels), 'got array of channels')
+    t.ok(channels.length > 0, 'non-empty array')
+    t.equal(typeof channels[0], 'string')
+    t.ok(channels[0].length > 0, 'found top channel: ' + channels[0])
+  })
+})
 
-test('Get chat messages from top live streamer', { timeout: 30 * 1000 }, function (t) {
-  t.plan(3 + 3 + 1 + 1 + 3)
-  getTopStreamers(function (err, channels) {
-    t.error(err, 'successfully got top channel')
-    t.ok(Array.isArray(channels), 'an array of top channels was returned')
-    var topChannel = channels[0] // top channel probably has a lot of chat activity we can test against
-    t.ok(typeof topChannel === 'string', 'top channel found: ' + topChannel)
+test('Get chat messages from top live streamer', { timeout: 60 * 1000 }, function (t) {
+  t.plan(7)
 
-    var buffer = []
-    var userMessageFound = false
-    var _infoChecksCompleted = false
+  tw.getTopStreamers(function (err, channels) {
+    var channel = channels[0]
+    t.ok(channel && channel.length > 0, 'found top channel: ' + channel)
 
-    var _timeout = setTimeout(function () {
-      t.fail("test timed out, didn't receive enough chat messages")
-    }, 16 * 1000)
-
-    var spawn = tw.spawn(topChannel, function (err, message) {
-      switch (message.type) {
-        case 'chat':
-          buffer.push(message)
-          if (buffer.length === 1) { // first/welome message
-            t.error(err, 'no errors getting welcome message')
-            t.equal(message.from.toLowerCase(), 'jtv', 'message.from was jtv')
-            t.ok(message.text.toLowerCase().indexOf('welcome') !== -1, 'welcome message received')
-          }
-
-          if (!userMessageFound && message.from.toLowerCase() !== 'jtv') {
-            t.ok(message.from, 'a live user message was received from: ' + message.from)
-            if (message.from) userMessageFound = true
-            clearTimeout(_timeout)
-            setTimeout(finish, 250)
-          }
-          break
-        case 'info':
-          // console.log('info: ' + message.text)
-          if (!_infoChecksCompleted) {
-            if (message.text === 'opening page...') t.pass('info: opening page... log received')
-            if (message.text === 'page opened') t.pass('info: page opened log received')
-            if (message.text === 'DOM polled') {
-              t.pass('info: DOM polled log received')
-              _infoChecksCompleted = true
-            }
-          }
+    var messages = []
+    var count = 0
+    var ctrl = tw.start(channel, function (err, message) {
+      messages.push(message)
+      count++
+      if (count === 20) {
+        ctrl.kill()
+        setTimeout(function () {
+          check()
+        }, 1500)
       }
     })
 
-    function finish () {
-      spawn.kill()
-      var size = buffer.length
-      setTimeout(function () {
-        t.equal(size, buffer.length, 'no new messages after spawn.kill()')
-      }, 3000)
+    function check () {
+      var ticks = messages.filter(function (message) { return message.type === 'tick' })
+      messages = messages.filter(function (message) { return message.type !== 'tick' })
+      var chats = messages.filter(function (message) { return message.type === 'chat' })
+      t.ok(ticks.length > 0, 'tick messages found')
+      t.equal(messages[0].type, 'opening')
+      t.equal(messages[1].type, 'ready')
+      t.ok(
+        chats[0].from.toLowerCase() === 'jtv' &&
+        chats[0].text.toLowerCase().indexOf('welcome') !== -1,
+        'jtv welcome message found'
+      )
+      t.ok(chats[1].from.length > 0 && chats[1].html.length > 0, 'user message found.')
+      t.equal(messages[messages.length - 1].type, 'exit')
     }
   })
 })
