@@ -1,4 +1,4 @@
-var tw = require('../index.js');
+var tw = require('../index.js')
 
 var test = require('tape')
 
