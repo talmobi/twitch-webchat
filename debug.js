@@ -6,7 +6,8 @@ var tw = require('./index.js')
 // })
 
 tw.start({
-  channel: 'admiralbulldog',
+  channel: 'summit1g',
+  // channel: 'admiralbulldog',
   // channel: 'totalbiscuit',
   interval: 1500,
   flexible: true
@@ -26,7 +27,7 @@ tw.start({
       console.log('  [SYSTEM]: ' + message.text)
       break
     case 'tick':
-      // console.log('  --- DOM Polled ---  ')
+      console.log('  --- DOM Polled ---  ')
       break
     default: // ignore
   }

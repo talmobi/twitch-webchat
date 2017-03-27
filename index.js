@@ -1,6 +1,6 @@
 'use strict'
 
-var Nightmare = require('nightmare')
+// var Nightmare = require('nightmare')
 var pinkyjs = require('../haamu/pinky.js')
 
 function getTopStreamers (callback) {
