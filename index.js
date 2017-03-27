@@ -1,7 +1,8 @@
 'use strict'
 
 // var Nightmare = require('nightmare')
-var pinkyjs = require('../haamu/pinky.js')
+// var pinkyjs = require('../haamu/pinky.js')
+var pinkyjs = require('pinkyjs')
 
 function getTopStreamers (callback) {
   var url = 'https://www.twitch.tv/directory/all'
