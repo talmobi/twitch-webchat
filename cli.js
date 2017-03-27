@@ -24,6 +24,8 @@ var usage = [
   , ''
   , 'Options:'
   , ''
+  , '  -t, --top          List current top live streamers'
+  , ''
   , '  -c, --color        Colorize output'
   , ''
   , '  -v, --version      Display version'
@@ -43,9 +45,11 @@ if (argv.version) {
 }
 
 if (argv.top) {
+  console.error('Fetching top live streamers...')
   return tw.getTopStreamers(function (err, channels) {
     if (err) throw err
-    console.log(channels)
+    console.log(channels.join('\n'))
+    process.exit()
   })
 }
 
@@ -57,6 +61,8 @@ if (!channel || typeof channel !== 'string' || channel.length < 1) {
   console.error('  twitch-webchat totalbiscuit')
   process.exit()
 }
+
+console.error('Opening channel: ' + channel + '...')
 
 var c = {
   'cyan': '36m',
