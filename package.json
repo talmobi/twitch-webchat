@@ -32,7 +32,6 @@
   },
   "dependencies": {
     "minimist": "^1.2.0",
-    "nightmare": "^2.9.1",
     "pinkyjs": "0.0.2"
   },
   "devDependencies": {
