@@ -7,7 +7,7 @@ var argv = require('minimist')(process.argv.slice(2), {
   alias: {
     h: 'help',
     v: 'version',
-    c: 'color',
+    c: ['color', 'colors', 'colorize'],
     t: 'top'
   }
 })
@@ -92,14 +92,14 @@ var ctrl = tw.start(channel, function (err, msg) {
         console.log('')
       } else {
         var badges = ''
-        if (msg.moderator) badges += badge('M', 'green')
-        if (msg.subscriber) badges += badge('S', 'magenta')
-        if (msg.prime) badges += badge('P', 'blue')
+        badges += msg.subscriber ? badge('S', 'magenta') : ''
+        badges += msg.prime ? badge('P', 'blue') : ''
+        badges += msg.moderator ? badge('M', 'green') : ''
 
         var from = cc(msg.from, c['gray'])
         var text = msg.text
 
-        console.log(badges + from + ': ' + text)
+        console.log(badges + ' ' + from + ': ' + text)
       }
       break
     case 'system':
