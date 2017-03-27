@@ -14,7 +14,7 @@ test('Get list of top live streamers', { timeout: 30 * 1000 }, function (t) {
 })
 
 test('Get chat messages from top live streamer', { timeout: 60 * 1000 }, function (t) {
-  t.plan(7)
+  t.plan(9)
 
   tw.getTopStreamers(function (err, channels) {
     var channel = channels[0]
@@ -38,8 +38,10 @@ test('Get chat messages from top live streamer', { timeout: 60 * 1000 }, functio
       messages = messages.filter(function (message) { return message.type !== 'tick' })
       var chats = messages.filter(function (message) { return message.type === 'chat' })
       t.ok(ticks.length > 0, 'tick messages found')
-      t.equal(messages[0].type, 'opening')
-      t.equal(messages[1].type, 'ready')
+      t.equal(messages[0].text, 'creating spawn...')
+      t.equal(messages[1].text, 'creating page...')
+      t.equal(messages[2].text, 'opening page...')
+      t.equal(messages[3].text, 'page opened and ready')
       t.ok(
         chats[0].from.toLowerCase() === 'jtv' &&
         chats[0].text.toLowerCase().indexOf('welcome') !== -1,

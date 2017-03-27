@@ -293,6 +293,13 @@ function start (opts, callback) {
   }) // eof pinky.createPage callback fn
 
   function exit () {
+    if (_running) {
+      _running = false
+      callback(undefined, {
+        type: 'exit',
+        text: 'exit'
+      })
+    }
     pinky.exit()
   }
 
