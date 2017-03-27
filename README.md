@@ -68,6 +68,8 @@ sudo apt-get install libfontconfig
 module.exports = {
   start: function ( channel:String || opts:Object, callback (err, data) )
   /*
+   * @desc Open and start polling the DOM for chat messages for the given channel.
+   *
    * @params {string} channel - channel name
    *   or
    * @params {object} opts - options object
@@ -87,6 +89,15 @@ module.exports = {
    *                message.moderator - user is Moderator (moderator text)
    *                message.prime - user is Twitch Prime Subscriber (twitch prime text)
    *                message.subscriber - user is Channel Subscriber (subscriber text)
+   */
+
+  getTopStreamers: function (err, channels)
+  /*
+   * @desc Get a list of the current top twitch streamers (from https://twitch.tv/directory/all)
+   *
+   * @params {function} callback - callback function
+   *              @params {Error} err
+   *              @params {Array.<string>} channels - array of channel names
    */
 };
 ```
