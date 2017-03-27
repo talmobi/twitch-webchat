@@ -102,6 +102,31 @@ module.exports = {
 };
 ```
 
+## CLI
+
+A simple Command Line Interface is also provided
+```bash
+$ npm install -g twitch-webchat
+$ twitch-webchat --help
+
+Usage: twitch-webchat [options] <channel>
+
+Examples:
+
+  twitch-webchat totalbiscuit
+  twitch-webchat --color sodapoppin
+  twitch-webchat -h
+
+Options:
+
+  -t, --top          List current top live streamers
+
+  -c, --color        Colorize output
+
+  -v, --version      Display version
+  -h, --help         Display help (this text)
+```
+
 ## Test
 ```js
 npm test
