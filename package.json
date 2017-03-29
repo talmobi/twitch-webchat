@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "minimist": "^1.2.0",
-    "pinkyjs": "0.0.2"
+    "pinkyjs": "^0.1.1"
   },
   "devDependencies": {
     "express": "^4.14.1",
