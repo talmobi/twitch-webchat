@@ -1,4 +1,4 @@
-# twitch-webchat - simple consumption/logging of twitch web chat (non IRC) through phantomjs
+# twitch-webchat - simple consumption/logging of twitch web chat (non IRC) using pinkyjs (phantomjs)
 
 ## Simple to use
 ```js
