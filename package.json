@@ -1,6 +1,6 @@
 {
   "name": "twitch-webchat",
-  "version": "2.0.10",
+  "version": "2.0.11",
   "description": "Consume twitch webchat through a headless browser (no IRC, no login)",
   "main": "index.js",
   "bin": {
