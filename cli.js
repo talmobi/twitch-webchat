@@ -79,8 +79,8 @@ function cc (text, code) {
   return ('\u001b[' + code + text + '\u001b[0m')
 }
 
-function badge (letter, color) {
-  return ('[' + cc(letter, c[color]) + ']')
+function badgeify (letter, color) {
+  return ('[' + cc(letter, c[color]) + '] ')
 }
 
 var ctrl = tw.start(channel, function (err, msg) {
@@ -91,15 +91,33 @@ var ctrl = tw.start(channel, function (err, msg) {
         console.log(' --- unknown message --- ')
         console.log('')
       } else {
-        var badges = ''
-        badges += msg.subscriber ? badge('S', 'magenta') : ''
-        badges += msg.prime ? badge('P', 'blue') : ''
-        badges += msg.moderator ? badge('M', 'green') : ''
+        var badgeString = ''
+
+        badgeString += msg.broadcaster ? badgeify('B', 'red') : ''
+        badgeString += msg.staff ? badgeify('Staff', 'yellow') : ''
+
+        badgeString += msg.subscriber ?
+          badgeify(
+            'S' +
+            msg.subscriber.replace(/\D+/g, '') +
+            (
+              msg.subscriber.replace(/\D+/g, '') ?
+              msg.subscriber.replace(/[^a-zA-Z]+/g, '')[0]
+              : ''
+            ) , 'magenta'
+          ) : ''
+
+        badgeString += msg.prime ? badgeify('P', 'blue') : ''
+        badgeString += msg.moderator ? badgeify('M', 'green') : ''
+        badgeString += msg.turbo ? badgeify('T', 'gray') : ''
+
+        badgeString += msg.cheer ?
+          badgeify('C' + msg.cheer.replace(/\D+/g, ''), 'cyan') : ''
 
         var from = cc(msg.from, c['gray'])
         var text = msg.text
 
-        console.log(badges + ' ' + from + ': ' + text)
+        console.log(badgeString + ' ' + from + ': ' + text)
       }
       break
     case 'system':

@@ -22,7 +22,8 @@
     "logger",
     "browser",
     "headless",
-    "nightmare"
+    "pinkyjs",
+    "phantomjs"
   ],
   "author": "talmobi <talmo.christian@gmail.com>",
   "license": "MIT",

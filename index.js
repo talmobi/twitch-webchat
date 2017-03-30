@@ -186,17 +186,43 @@ function start (opts, callback) {
               var moderator = undefined
               var subscriber = undefined
               var prime = undefined
+              var cheer = undefined
+              var turbo = undefined
+              var staff = undefined
+              var broadcaster = undefined
 
-              var badges = line.querySelectorAll('.badges .balloon')
+              var badges = line.querySelectorAll('.badge')
               ;[].forEach.call(badges, function (item) {
-                var text = item.textContent.trim()
-                if (text.toLowerCase().indexOf('moderator') !== -1) {
+                var text = (
+                  item['alt'] || item['original-title'] || item.textContent
+                ).trim()
+                var t = text.toLowerCase()
+
+                if (t.indexOf('broadcast') !== -1) {
+                  broadcaster = text
+                }
+
+                if (t.indexOf('staff') !== -1) {
+                  staff = text
+                }
+
+                if (t.indexOf('cheer') !== -1) {
+                  cheer = text
+                }
+
+                if (t.indexOf('turbo') !== -1) {
+                  turbo = text
+                }
+
+                if (t.indexOf('moderator') !== -1) {
                   moderator = text
                 }
-                if (text.toLowerCase().indexOf('subscriber') !== -1) {
+
+                if (t.indexOf('subscriber') !== -1) {
                   subscriber = text
                 }
-                if (text.toLowerCase().indexOf('prime') !== -1) {
+
+                if (t.indexOf('prime') !== -1) {
                   prime = text
                 }
               })
@@ -228,7 +254,11 @@ function start (opts, callback) {
                     html: html && parse(html.innerHTML),
                     moderator: moderator,
                     subscriber: subscriber,
-                    prime: prime
+                    prime: prime,
+                    cheer: cheer,
+                    turbo: turbo,
+                    staff: staff,
+                    broadcaster: broadcaster
                   })
                 }
               } else if (system) { // system message
