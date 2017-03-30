@@ -193,37 +193,37 @@ function start (opts, callback) {
 
               var badges = line.querySelectorAll('.badge')
               ;[].forEach.call(badges, function (item) {
-                var text = (
+                var itemText = (
                   item['alt'] || item['original-title'] || item.textContent
                 ).trim()
-                var t = text.toLowerCase()
+                var t = itemText.toLowerCase()
 
                 if (t.indexOf('broadcast') !== -1) {
-                  broadcaster = text
+                  broadcaster = itemText
                 }
 
                 if (t.indexOf('staff') !== -1) {
-                  staff = text
+                  staff = itemText
                 }
 
                 if (t.indexOf('cheer') !== -1) {
-                  cheer = text
+                  cheer = itemText
                 }
 
                 if (t.indexOf('turbo') !== -1) {
-                  turbo = text
+                  turbo = itemText
                 }
 
                 if (t.indexOf('moderator') !== -1) {
-                  moderator = text
+                  moderator = itemText
                 }
 
                 if (t.indexOf('subscriber') !== -1) {
-                  subscriber = text
+                  subscriber = itemText
                 }
 
                 if (t.indexOf('prime') !== -1) {
-                  prime = text
+                  prime = itemText
                 }
               })
 
