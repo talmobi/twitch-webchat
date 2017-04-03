@@ -131,7 +131,7 @@ var ctrl = tw.start(channels, function (err, msg) {
       }
       break
     case 'system':
-      console.log('        [$text]'.replace('$text', msg.text))
+      console.log('[$text]'.replace('$text', msg.text))
       break
     case 'tick':
       // console.log('   [' + msg.channel  + ']    DOM POLLED')
