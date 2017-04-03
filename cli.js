@@ -3,11 +3,10 @@
 var tw = require('./index.js')
 
 var argv = require('minimist')(process.argv.slice(2), {
-  boolean: ['help', 'version', 'color', 'top'],
+  boolean: ['help', 'version', 'no-color', 'top'],
   alias: {
     h: 'help',
     v: 'version',
-    c: ['color', 'colors', 'colorize'],
     t: 'top'
   }
 })
@@ -26,7 +25,7 @@ var usage = [
   , ''
   , '  -t, --top          List current top live streamers'
   , ''
-  , '  -c, --color        Colorize output'
+  , '  --no-color         Do not colorize output'
   , ''
   , '  -v, --version      Display version'
   , '  -h, --help         Display help (this text)'
@@ -53,16 +52,27 @@ if (argv.top) {
   })
 }
 
-var channel = argv._[0]
-if (!channel || typeof channel !== 'string' || channel.length < 1) {
-  console.error('Error: Missing channel name!')
+// var channel = argv._[0]
+// if (!channel || typeof channel !== 'string' || channel.length < 1) {
+//   console.error('Error: Missing channel name!')
+//   console.error('')
+//   console.error('Example:')
+//   console.error('  twitch-webchat totalbiscuit')
+//   process.exit()
+// }
+
+var channels = argv._
+if (!channels || !channels.length || channels.length < 1) {
+  console.error('Error! Missing channel: Please specify one or more channel names')
   console.error('')
-  console.error('Example:')
+  console.error('Examples:')
   console.error('  twitch-webchat totalbiscuit')
+  console.error('  twitch-webchat totalbiscuit strippin')
+  console.error('')
   process.exit()
 }
 
-console.error('Opening channel: ' + channel + '...')
+console.error('Opening channels: ' + channels.join(', ') + '...')
 
 var c = {
   'cyan': '36m',
@@ -75,7 +85,7 @@ var c = {
 }
 
 function cc (text, code) {
-  if (!argv.color) return text
+  if (argv['no-color']) return text
   return ('\u001b[' + code + text + '\u001b[0m')
 }
 
@@ -83,7 +93,7 @@ function badgeify (letter, color) {
   return ('[' + cc(letter, c[color]) + '] ')
 }
 
-var ctrl = tw.start(channel, function (err, msg) {
+var ctrl = tw.start(channels, function (err, msg) {
   switch (msg.type) {
     case 'chat':
       if (!msg.html || !msg.from) {
@@ -117,19 +127,23 @@ var ctrl = tw.start(channel, function (err, msg) {
         var from = cc(msg.from, c['gray'])
         var text = msg.text
 
-        console.log(badgeString + ' ' + from + ': ' + text)
+        console.log('  [' + msg.channel + '] ' + badgeString + ' ' + from + ': ' + text)
       }
       break
     case 'system':
-      console.log('')
-      console.log('[$text]'.replace('$text', msg.text))
-      console.log('')
+      console.log('        [$text]'.replace('$text', msg.text))
       break
-    case 'tick': break // ignore DOM polling status messages
+    case 'tick':
+      // console.log('   [' + msg.channel  + ']    DOM POLLED')
+      break
     case 'exit':
       process.exit()
       break
     default:
-      console.log(msg.type + ': ' + msg.text)
+      if (msg.from) {
+        console.log('[' + msg.type + '] ' + msg.from + ': ' + msg.text)
+      } else {
+        console.log('[' + msg.type + '] ' + msg.text)
+      }
   }
 })

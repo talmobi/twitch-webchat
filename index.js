@@ -2,7 +2,7 @@
 
 // var Nightmare = require('nightmare')
 // var pinkyjs = require('../haamu/pinky.js')
-var pinkyjs = require('pinkyjs')
+var pinkyjs = require('../pinkyjs/pinky.js')
 
 function getTopStreamers (callback) {
   var url = 'https://www.twitch.tv/directory/all'
@@ -12,6 +12,9 @@ function getTopStreamers (callback) {
     viewportSize: {
       width: 720,
       height: 1280
+    },
+    settings: {
+      loadImages: false
     }
   }, function (err, page) {
     if (err) return callback(err)
@@ -95,16 +98,18 @@ function createTimeBucket (interval) {
 
 function start (opts, callback) {
   var
-    _channel = opts,
+    _channels = opts,
     _interval = 1000,
     _flexible = false,
     _running = true,
     _timeBucket = createTimeBucket(_interval * 10) // 10 second time bucket
 
-  if (typeof opts === 'object') {
-    _channel = opts.channel
-    _interval = opts.interval || interval
-    _flexible = !!(opts.flexible || flexible)
+  if (typeof _channels === 'string') _channels = [_channels]
+
+  if (typeof opts === 'object' && !(opts instanceof Array)) {
+    _channels = opts.channel || opts.channels
+    _interval = opts.interval || _interval
+    _flexible = !!(opts.flexible || _flexible)
     callback = opts.callback || callback
   }
 
@@ -112,15 +117,14 @@ function start (opts, callback) {
     throw new Error('Error: Selected DOM Polling interval time [' + _interval +'] is stupidly low (below 1000ms).')
   }
 
-  if (typeof _channel !== 'string') {
-    throw new Error('Error: Channel name missing: A channel name must be provided as the first argument or within the options object')
+  if (!(_channels instanceof Array)) {
+    throw new Error('Error! Channel missing: No channel or channels specified.')
   }
   if (typeof callback !== 'function') {
-    throw new Error('Error: Missing callback function: A callback function must be provided as the second argument or within the options object')
+    throw new Error('Error! Missing callback function: A callback function must be provided as the second argument or within the options object.')
   }
 
   var URL_TEMPLATE = "https://www.twitch.tv/$channel/chat?popout"
-  var url = URL_TEMPLATE.replace('$channel', _channel)
 
   callback(undefined, {
     type: 'debug',
@@ -129,199 +133,228 @@ function start (opts, callback) {
 
   var pinky = pinkyjs.createSpawn()
 
-  callback(undefined, {
-    type: 'debug',
-    text: 'creating page...'
-  })
+  _channels.forEach(function (channel, index) {
+    setTimeout(function () {
+      channel = channel.toLowerCase().trim()
+      if (channel[0] === '#') channel = channel.slice(1)
+      var url = URL_TEMPLATE.replace('$channel', channel)
 
-  pinky.createPage({
-    viewportSize: {
-      width: 420,
-      height: 720
-    }
-  }, function (err, page) {
-    if (err) return callback(err)
+      callback(undefined, {
+        type: 'debug',
+        text: 'creating page... ' + channel
+      })
 
-    callback(undefined, {
-      type: 'debug',
-      text: 'opening page...'
-    })
-
-    page.open(url, function (err) {
-      if (err) return callback(err)
-      // wait for initial load
-      page.wait('.chat-messages .tse-content .chat-line', function (err) {
+      pinky.createPage({
+        viewportSize: {
+          width: 375,
+          height: 300
+        },
+        settings: {
+          loadImages: false
+        }
+      }, function (err, page) {
         if (err) return callback(err)
+
         callback(undefined, {
           type: 'debug',
-          text: 'page opened and ready'
+          text: 'opening page...'
         })
 
-        tick()
-        function tick () {
-          page.evaluate(function () {
-            var lines = document.querySelectorAll('.chat-messages .tse-content .chat-line')
+        page.open(url, function (err) {
+          if (err) return callback(err)
+          // wait for initial load
+          page.wait('.chat-messages .tse-content .chat-line', function (err) {
+            if (err) return callback(err)
+            callback(undefined, {
+              type: 'debug',
+              text: 'page opened and ready [' + channel + ']'
+            })
 
-            if (!(lines && lines.length > 0)) return []
+            tick()
+            function tick () {
+              page.evaluate(function () {
+                var lines = document.querySelectorAll('.chat-messages .tse-content .chat-line')
 
-            function parse (text) {
-              return text
-                .split(/[\r\n]/g)
-                .map(function(str) { return str.trim() })
-                .filter(function (str) {
-                  return str.trim().length !== 0
+                if (!(lines && lines.length > 0)) return []
+
+                function parse (text) {
+                  return text
+                    .split(/[\r\n]/g)
+                    .map(function(str) { return str.trim() })
+                    .filter(function (str) {
+                      return str.trim().length !== 0
+                    })
+                    .join(' ')
+                    .trim()
+                }
+
+                var messages = []
+                ;[].forEach.call(lines, function (line) {
+                  var from = line.querySelector('.from')
+                  var text = line.querySelector('.message')
+                  var html = line.querySelector('.message')
+
+                  var system = line.querySelector('.system-msg')
+
+                  var moderator = undefined
+                  var subscriber = undefined
+                  var prime = undefined
+                  var cheer = undefined
+                  var turbo = undefined
+                  var staff = undefined
+                  var broadcaster = undefined
+
+                  var badges = line.querySelectorAll('.badge')
+                  ;[].forEach.call(badges, function (item) {
+                    var itemText = (
+                      item['alt'] || item['original-title'] || item.textContent
+                    ).trim()
+                    var t = itemText.toLowerCase()
+
+                    if (t.indexOf('broadcast') !== -1) {
+                      broadcaster = itemText
+                    }
+
+                    if (t.indexOf('staff') !== -1) {
+                      staff = itemText
+                    }
+
+                    if (t.indexOf('cheer') !== -1) {
+                      cheer = itemText
+                    }
+
+                    if (t.indexOf('turbo') !== -1) {
+                      turbo = itemText
+                    }
+
+                    if (t.indexOf('moderator') !== -1) {
+                      moderator = itemText
+                    }
+
+                    if (t.indexOf('subscriber') !== -1) {
+                      subscriber = itemText
+                    }
+
+                    if (t.indexOf('prime') !== -1) {
+                      prime = itemText
+                    }
+                  })
+
+                  // user message
+                  if (from && text && html) {
+                    if (from &&
+                        parse(from.textContent).length === 0 &&
+                        text) {
+                      // special case
+                      // Hosting Message, Subscriber Mode, New Subscriber
+                      messages.push({
+                        type: 'system',
+                        text: text && parse(text.textContent)
+                      })
+                    } else {
+                      var text = text && parse(text.textContent)
+
+                      var emoticonTooltips = html && html.querySelectorAll('.balloon-wrapper > .balloon--tooltip')
+                      // remove emoticon tooltip texts
+                      ;[].forEach.call(emoticonTooltips, function (tooltip) {
+                        tooltip && tooltip.parentNode && tooltip.parentNode.removeChild(tooltip)
+                      })
+
+                      messages.push({
+                        type: 'chat',
+                        from: from && parse(from.textContent),
+                        text: text,
+                        html: html && parse(html.innerHTML),
+                        moderator: moderator,
+                        subscriber: subscriber,
+                        prime: prime,
+                        cheer: cheer,
+                        turbo: turbo,
+                        staff: staff,
+                        broadcaster: broadcaster
+                      })
+                    }
+                  } else if (system) { // system message
+                    messages.push({
+                      type: 'system',
+                      from: from && parse(from.textContent),
+                      text: system && parse(system.textContent)
+                    })
+                  } else { // unknown message
+                    var deleted = line.querySelector('.deleted')
+                    if (deleted) {
+                      messages.push({
+                        type: 'deleted',
+                        from: from && parse(from.textContent),
+                        text: deleted && parse(deleted.textContent)
+                      })
+                    } else {
+                      messages.push({
+                        type: 'unknown',
+                        from: from && parse(from.textContent),
+                        text: text && parse(text.textContent)
+                      })
+                    }
+                  }
                 })
-                .join(' ')
-                .trim()
-            }
 
-            var messages = []
-            ;[].forEach.call(lines, function (line) {
-              var from = line.querySelector('.from')
-              var text = line.querySelector('.message')
-              var html = line.querySelector('.message')
+                // remove the parsed messages from the DOM
+                ;[].forEach.call(lines, function (line) {
+                  line && line.parentNode && line.parentNode.removeChild(line)
+                })
 
-              var system = line.querySelector('.system-msg')
+                // return the data back to our script context
+                // (outside of evaluate)
+                return messages
+              }, function (err, messages) {
+                if (err) return callback(err)
 
-              var moderator = undefined
-              var subscriber = undefined
-              var prime = undefined
-              var cheer = undefined
-              var turbo = undefined
-              var staff = undefined
-              var broadcaster = undefined
+                callback(undefined, {
+                  type: 'tick',
+                  text: 'DOM polled'
+                })
 
-              var badges = line.querySelectorAll('.badge')
-              ;[].forEach.call(badges, function (item) {
-                var itemText = (
-                  item['alt'] || item['original-title'] || item.textContent
-                ).trim()
-                var t = itemText.toLowerCase()
-
-                if (t.indexOf('broadcast') !== -1) {
-                  broadcaster = itemText
-                }
-
-                if (t.indexOf('staff') !== -1) {
-                  staff = itemText
-                }
-
-                if (t.indexOf('cheer') !== -1) {
-                  cheer = itemText
-                }
-
-                if (t.indexOf('turbo') !== -1) {
-                  turbo = itemText
-                }
-
-                if (t.indexOf('moderator') !== -1) {
-                  moderator = itemText
-                }
-
-                if (t.indexOf('subscriber') !== -1) {
-                  subscriber = itemText
-                }
-
-                if (t.indexOf('prime') !== -1) {
-                  prime = itemText
-                }
-              })
-
-              // user message
-              if (from && text && html) {
-                if (from &&
-                    parse(from.textContent).length === 0 &&
-                    text) {
-                  // special case
-                  // Hosting Message, Subscriber Mode, New Subscriber
-                  messages.push({
-                    type: 'system',
-                    text: text && parse(text.textContent)
+                if (messages && messages instanceof Array) {
+                  _timeBucket.add(messages.length)
+                  messages.forEach(function (message) {
+                    message.channel = channel
+                    callback(undefined, message)
                   })
                 } else {
-                  var text = text && parse(text.textContent)
-
-                  var emoticonTooltips = html && html.querySelectorAll('.balloon-wrapper > .balloon--tooltip')
-                  // remove emoticon tooltip texts
-                  ;[].forEach.call(emoticonTooltips, function (tooltip) {
-                    tooltip && tooltip.parentNode && tooltip.parentNode.removeChild(tooltip)
-                  })
-
-                  messages.push({
-                    type: 'chat',
-                    from: from && parse(from.textContent),
-                    text: text,
-                    html: html && parse(html.innerHTML),
-                    moderator: moderator,
-                    subscriber: subscriber,
-                    prime: prime,
-                    cheer: cheer,
-                    turbo: turbo,
-                    staff: staff,
-                    broadcaster: broadcaster
+                  callback(undefined, {
+                    type: 'error',
+                    text: 'Error! DOM evaluation did not return an array of messages...'
                   })
                 }
-              } else if (system) { // system message
-                messages.push({
-                  type: 'system',
-                  text: system && parse(system.textContent)
-                })
-              } else { // unknown message
-                messages.push({
-                  type: 'unknown',
-                  text: text && parse(line.textContent)
-                })
-              }
-            })
 
-            // remove the parsed messages from the DOM
-            ;[].forEach.call(lines, function (line) {
-              line && line.parentNode && line.parentNode.removeChild(line)
-            })
-
-            // return the data back to our script context
-            // (outside of evaluate)
-            return messages
-          }, function (err, messages) {
-            if (err) return callback(err)
-
-            callback(undefined, {
-              type: 'tick',
-              text: 'DOM polled'
-            })
-
-            _timeBucket.add(messages.length)
-
-            messages.forEach(function (message) {
-              callback(undefined, message)
-            })
-
-            if (_running) {
-              if (_flexible) {
-                var sum = _timeBucket.get().reduce(function (acc, length) {
-                  return acc + length
-                }, 1)
-                var inverse = 1 / (sum / (_timeBucket.delta() / 1000))
-                var flexInterval = _interval
-                if (inverse > 1) flexInterval = Math.round(inverse * _interval)
-                if (inverse > 10) flexInterval = 10 * _interval
-                // console.log(' ---------- inverse: ' + inverse)
-                // console.log(' ---------- flexInterval: ' + flexInterval)
-                setTimeout(tick, flexInterval) // poll again in an average 1 message per second rate
-              } else {
-                setTimeout(tick, _interval) // poll again in <interval || 1000> miliseconds
-              }
-            } else {
-              callback(undefined, {
-                type: 'exit',
-                text: 'exit'
+                if (_running) {
+                  if (_flexible) {
+                    var sum = _timeBucket.get().reduce(function (acc, length) {
+                      return acc + length
+                    }, 1)
+                    var inverse = 1 / (sum / (_timeBucket.delta() / 1000))
+                    var flexInterval = _interval
+                    if (inverse > 1) flexInterval = Math.round(inverse * _interval)
+                    if (inverse > 10) flexInterval = 10 * _interval
+                    // console.log(' ---------- inverse: ' + inverse)
+                    // console.log(' ---------- flexInterval: ' + flexInterval)
+                    setTimeout(tick, flexInterval) // poll again in an average 1 message per second rate
+                  } else {
+                    setTimeout(tick, _interval) // poll again in <interval || 1000> miliseconds
+                  }
+                } else {
+                  callback(undefined, {
+                    type: 'exit',
+                    text: 'exit'
+                  })
+                }
               })
-            }
-          })
-        } // eof tick fn
-      }) // eof page.wait fn
-    }) // eof page.open fn
-  }) // eof pinky.createPage callback fn
+            } // eof tick fn
+          }) // eof page.wait fn
+        }) // eof page.open fn
+      }) // eof pinky.createPage callback fn
+    }, index * 5000 + 500)
+  })
 
   function exit () {
     if (_running) {
