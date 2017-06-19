@@ -23,17 +23,22 @@ function getTopStreamers (callback) {
     page.open(url, function (err) {
       if (err) return callback(err)
       // wait for initial load
-      page.wait('#directory-list .content .meta .title a', function (err) {
+      page.wait('#directory-list .card__img a', function (err) {
         if (err) return callback(err)
         // setTimeout(function () {
           page.eval(function () {
             var dict = {}
-            var anchors = document.querySelectorAll('#directory-list .content .meta .title a')
+            var anchors = [].filter.call(document.querySelectorAll(
+              '#directory-list .card__img a'
+            ), function (el) {
+              console.log(el.href)
+              return el.href.split('/').length === 4
+            })
 
             for (var i = 0; i < anchors.length; i++) {
               try {
                 var a = anchors[i]
-                if (a && a.href) dict[a.href] = decodeURI(a.href)
+                if (a && a.href) dict[a.href] = decodeURI(a.href.toLowerCase())
               } catch (err) {}
             }
 
