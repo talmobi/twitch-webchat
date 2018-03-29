@@ -1,4 +1,7 @@
-# twitch-webchat - simple consumption/logging of twitch web chat (non IRC) using pinkyjs (phantomjs)
+[![npm](https://img.shields.io/npm/v/twitch-webchat.svg?maxAge=3600&style=flat-square)](https://www.npmjs.com/package/twitch-webchat)[![npm](https://img.shields.io/npm/l/twitch-webchat.svg?maxAge=3600&style=flat-square)](https://github.com/talmobi/twitch-webchat/blob/master/LICENSE)
+
+# twitch-webchat ![](https://static-cdn.jtvnw.net/emoticons/v1/25/1.0)
+simple consumption/logging of twitch web chat (non IRC) using pinkyjs (phantomjs wrapper)
 
 ## Simple to use
 ```js
@@ -44,6 +47,12 @@ Consume chat message from the web version of twitch chat (non IRC). Requires no 
 Using pinkyjs (phantomjs wrapper) we can run a headless browser environment to connect to twitch chat and
 poll (default every 1000 ms) the DOM for changes.
 
+## Why
+For fun.. was interesting to see how you would be able to consume/parse content generated from a dynamic web page. It's much more complicated than consuming static, pre-rendered content. Can't simply use something like cheerio and plain old HTTP requests. The answer being headless browsers.
+
+## For who?
+Kappa
+
 ## Installation
 from npm
 ```js
@@ -59,7 +68,7 @@ npm install
 ## Common Issues
 Phantomjs has a hidden dependency lacking in some linux distros, see: https://github.com/ariya/phantomjs/issues/10904
 To fix simply install it manually with your favourite package manager:
-```js
+```bash
 sudo apt-get install libfontconfig
 ```
 
@@ -104,7 +113,7 @@ module.exports = {
 
 ## CLI
 
-A simple Command Line Interface is also provided
+A simple Command Line Interface is also included
 ```bash
 $ npm install -g twitch-webchat
 $ twitch-webchat --help
