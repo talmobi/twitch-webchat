@@ -96,7 +96,7 @@ function badgeify (letter, color) {
 var ctrl = tw.start(channels, function (err, msg) {
   switch (msg.type) {
     case 'chat':
-      if (!msg.html || !msg.from) {
+      if (!msg.text || !msg.from) {
         console.log('')
         console.log(' --- unknown message --- ')
         console.log('')
