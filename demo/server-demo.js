@@ -20,7 +20,7 @@ io.on('connect', function (socket) {
 
     if (channel.length >= 3 && channel.length < 20 && !/[^a-zA-Z0-9]/.test(channel)) {
       if (!running) {
-        socket.emit('status', 'request accepted - spining up a twitch-webchat instance for channel: ' + channel);
+        socket.emit('status', 'request accepted - spinning up a twitch-webchat instance for channel: ' + channel);
         run(channel);
       } else {
         var s = (timeoutTime + currentTime - Date.now() + 2000) / 1000 | 0
