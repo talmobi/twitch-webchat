@@ -8,7 +8,7 @@ tw.getTopStreamers(function (err, channels) {
 */
 
 tw.start({
-  channel: 'dota2mc_ru',
+  channel: 'drdisrespectlive',
   // channel: 'admiralbulldog',
   // channel: 'totalbiscuit',
   interval: 1500,
@@ -16,7 +16,7 @@ tw.start({
 }, function (err, message) {
   if (err) throw err
 
-  console.log( message )
+  // console.log( message )
 
   var type = message.type
   var text = message.text
