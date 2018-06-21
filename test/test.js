@@ -17,7 +17,7 @@ test('Get list of top live streamers', { timeout: 30 * 1000 }, function (t) {
 })
 
 test('Get chat messages from top live streamer', { timeout: 60 * 1000 }, function (t) {
-  t.plan(9)
+  t.plan(5)
 
   var channel = _topChannels[0]
   t.ok(channel && channel.length > 0, 'using top channel from previous test: ' + channel)
@@ -40,14 +40,13 @@ test('Get chat messages from top live streamer', { timeout: 60 * 1000 }, functio
     messages = messages.filter(function (message) { return message.type !== 'tick' })
     var chats = messages.filter(function (message) { return message.type === 'chat' })
     t.ok(ticks.length > 0, 'tick messages found')
-    t.equal(messages[0].text, 'creating spawn...')
-    t.equal(messages[1].text, 'creating page... ' + channel)
-    t.equal(messages[2].text, 'opening page...')
-    t.equal(messages[3].text, 'page opened and ready [' + channel + ']')
+    // t.equal(messages[0].text, 'creating spawn...')
+    // t.equal(messages[1].text, 'creating page... ' + channel)
+    // t.equal(messages[2].text, 'opening page...')
+    // t.equal(messages[3].text, 'page opened and ready [' + channel + ']')
     t.ok(
-      chats[0].from.toLowerCase() === 'jtv' &&
       chats[0].text.toLowerCase().indexOf('welcome') !== -1,
-      'jtv welcome message found'
+      'welcome message found'
     )
     t.ok(chats[1].from.length > 0 && chats[1].html.length > 0, 'user message found.')
     t.equal(messages[messages.length - 1].type, 'exit')
@@ -55,7 +54,7 @@ test('Get chat messages from top live streamer', { timeout: 60 * 1000 }, functio
 })
 
 test('Get chat messages from multiple live streamer', { timeout: 60 * 1000 }, function (t) {
-  t.plan(12)
+  t.plan(10)
 
   var channels = [
     _topChannels[0],
@@ -90,14 +89,13 @@ test('Get chat messages from multiple live streamer', { timeout: 60 * 1000 }, fu
     var chats = messages.filter(function (message) { return message.type === 'chat' })
     var welcomeMessages = chats.filter(function (message) {
       return (
-        message.from.toLowerCase() === 'jtv' &&
         message.text.toLowerCase().indexOf('welcome') >= 0
       )
     })
     var userMessages = chats.filter(function (message) {
       return (
         message.from.toLowerCase().length > 0 &&
-        message.from.toLowerCase() !== 'jtv' &&
+        // message.from.toLowerCase() !== 'jtv' &&
         message.html.length > 0
       )
     })
@@ -111,8 +109,8 @@ test('Get chat messages from multiple live streamer', { timeout: 60 * 1000 }, fu
       return message.channel.toLowerCase() === channels[2]
     })
     t.ok(ticks.length > 0, 'tick messages found')
-    t.equal(messages[0].text, 'creating spawn...')
-    t.equal(messages[1].text, 'creating page... ' + channels[0])
+    // t.equal(messages[0].text, 'creating spawn...')
+    // t.equal(messages[1].text, 'creating page... ' + channels[0])
     t.equal(welcomeMessages.length, 3, 'welcome messages found')
     t.ok(userMessages.length > 10, 'user message found.')
     t.ok(channel0UserMessages.length > 0, 'channel0 messages found.')
