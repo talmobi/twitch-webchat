@@ -1,18 +1,23 @@
 var tw = require('./index.js')
 
-// tw.getTopStreamers(function (err, channels) {
-//   if (err) throw err
-//   console.log(channels)
-// })
+/*
+tw.getTopStreamers(function (err, channels) {
+  if (err) throw err
+  console.log(channels)
+})
+*/
 
 tw.start({
-  channel: 'summit1g',
+  channel: 'dota2mc_ru',
   // channel: 'admiralbulldog',
   // channel: 'totalbiscuit',
   interval: 1500,
   flexible: true
 }, function (err, message) {
   if (err) throw err
+
+  console.log( message )
+
   var type = message.type
   var text = message.text
 
