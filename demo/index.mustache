@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Twitch-Webchat Demo</title>
+</head>
+<body>
+  <h1>Twitch-Webchat Demo</h1>
+  <form id="form" action="submit">
+    <input id="channel" type="text" class="text" value="{{ defaultChannel }}" name="channel">
+    <input id="submit" type="submit" class="submit" value="run demo" name="">
+  </form>
+  <hr />
+
+  <ul id="list">
+  </ul>
+
+  <script src="/socket.io/socket.io.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    var socket = io();
+
+    socket.on('messages', function (messages) {
+      messages.forEach(function (val, ind, arr) {
+        //log(val.from + ": " + val.text)
+        log(val.from + ": " + val.html)
+      });
+    });
+
+    socket.on('status', function (status) {
+      log(status);
+    });
+
+    var elChannel = document.getElementById('channel');
+    var elForm = document.getElementById('form');
+    elForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var channel = elChannel.value.trim();
+      log("form submitted: " + channel);
+      socket.emit('run', channel);
+    });
+
+    var elList = document.getElementById('list');
+    function log (str) {
+      var li = document.createElement('li');
+      li.innerHTML = str;
+      elList.insertBefore(li, elList.firstChild);
+    };
+    log("test");
+  </script>
+</body>
+</html>

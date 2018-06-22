@@ -5,8 +5,53 @@ var io = require('socket.io')(server);
 
 var tw = require('../index.js');
 
+var fs = require( 'fs' )
+var path = require( 'path' )
+var mustache = require( 'mustache' )
+
+const ONE_SECOND = 1000
+const ONE_MINUTE = ONE_SECOND * 60
+const THREE_MINUTES = 3 * ONE_MINUTE
+
+var toplist = [ 'ninja' ]
+
+function updateTop () {
+  tw.getTopStreamers( function ( err, list ) {
+    if ( list ) {
+      toplist = list
+      console.log( 'top updated' )
+      render()
+    }
+
+    setTimeout( updateTop, THREE_MINUTES )
+  } )
+}
+
+render()
+
+function render () {
+  const filepath = path.join( __dirname, 'index.mustache' )
+  fs.readFile( filepath, 'utf8', function ( err, text ) {
+    const opts = {
+      defaultChannel: toplist[ 0 ]
+    }
+    const output = mustache.render( text, opts )
+
+    const outputPath = path.join( __dirname, 'index.html' )
+
+    fs.writeFile( outputPath, output, function ( err ) {
+      if ( err ) throw err
+      console.log( 'index.html updated with top: ' + toplist[ 0 ] )
+    } )
+  } )
+}
+
+updateTop()
+
 app.get('/', function (req, res) {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(
+    path.join( __dirname, 'index.html' )
+  );
 });
 
 var sockets = [];
@@ -76,7 +121,6 @@ function run (channel) {
       case 'tick': break // ignore DOM polling status messages
       case 'exit':
         handleStatus('shutting down');
-        running && process.exit()
         break
       default:
         handleStatus('info: ' + message.text);
