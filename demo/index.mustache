@@ -15,9 +15,9 @@
   <ul id="list">
   </ul>
 
-  <script src="/socket.io/socket.io.js" type="text/javascript"></script>
+  <script src="/kiite.min.js" type="text/javascript"></script>
   <script type="text/javascript">
-    var socket = io();
+    var socket = window.kiite.connect();
 
     socket.on('messages', function (messages) {
       messages.forEach(function (val, ind, arr) {
