@@ -49,6 +49,7 @@ test('Get chat messages from top live streamer', { timeout: 60 * 1000 }, functio
       'welcome message found'
     )
     t.ok(chats[1].from.length > 0 && chats[1].html.length > 0, 'user message found.')
+    // console.log( messages )
     t.equal(messages[messages.length - 1].type, 'exit')
   }
 })

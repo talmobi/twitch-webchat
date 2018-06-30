@@ -11,7 +11,9 @@ function getTopStreamers ( callback ) {
       const browser = await puppeteer.launch( opts )
       const page = await browser.newPage()
 
-      await page.goto( 'https://www.twitch.tv/directory/all' )
+      await page.goto( 'https://www.twitch.tv/directory/all', {
+        waitUntil: 'domcontentloaded'
+      } )
       await page.waitFor( '.tw-link.tw-link--inherit' )
       const list = await page.evaluate( function () {
         var dict = {}
@@ -79,6 +81,8 @@ function start (opts, callback) {
     throw new Error('Error! Missing callback function: A callback function must be provided as the second argument or within the options object.')
   }
 
+  const _callback = callback
+
   // var URL_TEMPLATE = "https://www.twitch.tv/$channel/chat?popout"
   const URL_TEMPLATE = "https://www.twitch.tv/popout/$channel/chat"
   let browser
@@ -98,7 +102,9 @@ function start (opts, callback) {
 
           const page = await browser.newPage()
 
-          await page.goto( url )
+          await page.goto( url, {
+            waitUntil: 'domcontentloaded'
+          } )
           await page.waitFor( function () {
             const el = document.querySelector( 'div[data-a-target="chat-welcome-message"].chat-line__status' )
             return !!el
@@ -108,6 +114,12 @@ function start (opts, callback) {
 
           async function tick () {
             // console.log( ' == CALLING TICK == ' )
+            callback = function ( err, evt ) {
+              if ( !_exitCalled ) {
+                _callback( err, evt )
+              }
+            }
+
             try {
               const messages = await page.evaluate( function () {
                 var lines = document.querySelectorAll( '.chat-line__message, .chat-line__status' )
@@ -315,14 +327,14 @@ function start (opts, callback) {
     if ( !_exitCalled ) {
       _exitCalled = true
 
-      try {
-        browser.close()
-      } catch ( err ) { /* ignore */ }
-
-      callback(undefined, {
+      _callback(undefined, {
         type: 'exit',
         text: 'exit'
       })
+
+      try {
+        browser.close()
+      } catch ( err ) { /* ignore */ }
     }
   }
 
