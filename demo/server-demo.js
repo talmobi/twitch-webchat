@@ -63,7 +63,7 @@ io.on('connect', function (socket) {
   socket.on('run', function (channel) {
     channel = channel.trim();
 
-    if (channel.length >= 3 && channel.length < 20 && !/[^a-zA-Z0-9]/.test(channel)) {
+    if (channel.length >= 3 && channel.length < 20 && !/[^a-zA-Z0-9_-]/.test(channel)) {
       if (!running) {
         socket.emit('status', 'request accepted - spinning up a twitch-webchat instance for channel: ' + channel);
         run(channel);
