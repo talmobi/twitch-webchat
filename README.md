@@ -1,7 +1,7 @@
 [![npm](https://img.shields.io/npm/v/twitch-webchat.svg?maxAge=3600&style=flat-square)](https://www.npmjs.com/package/twitch-webchat)[![npm](https://img.shields.io/npm/l/twitch-webchat.svg?maxAge=3600&style=flat-square)](https://github.com/talmobi/twitch-webchat/blob/master/LICENSE)
 
 # twitch-webchat ![](https://static-cdn.jtvnw.net/emoticons/v1/25/1.0)
-simple consumption/logging of twitch web chat (non IRC) using pinkyjs (phantomjs wrapper)
+simple consumption/logging of twitch web chat (non IRC) using puppeteer
 
 ## Simple to use
 ```js
