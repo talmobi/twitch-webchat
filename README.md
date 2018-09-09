@@ -1,7 +1,7 @@
 [![npm](https://img.shields.io/npm/v/twitch-webchat.svg?maxAge=3600&style=flat-square)](https://www.npmjs.com/package/twitch-webchat)[![npm](https://img.shields.io/npm/l/twitch-webchat.svg?maxAge=3600&style=flat-square)](https://github.com/talmobi/twitch-webchat/blob/master/LICENSE)
 
 # twitch-webchat ![](https://static-cdn.jtvnw.net/emoticons/v1/25/1.0)
-simple consumption/logging of twitch web chat (non IRC) using pinkyjs (phantomjs wrapper)
+simple consumption/logging of twitch web chat (non IRC) using puppeteer
 
 ## Simple to use
 ```js
@@ -44,7 +44,7 @@ var controls = tw.start( channelName, function (err, message) {
 Consume chat message from the web version of twitch chat (non IRC). Requires no login.
 
 ## How
-Using pinkyjs (phantomjs wrapper) we can run a headless browser environment to connect to twitch chat and
+Using [puppeteer](https://github.com/GoogleChrome/puppeteer) we can run a headless browser environment to connect to twitch chat and
 poll (default every 1000 ms) the DOM for changes.
 
 ## Why
@@ -63,13 +63,6 @@ from source
 git clone https://github.com/talmobi/twitch-webchat
 cd twitch-webchat
 npm install
-```
-
-## Common Issues
-Phantomjs has a hidden dependency lacking in some linux distros, see: https://github.com/ariya/phantomjs/issues/10904
-To fix simply install it manually with your favourite package manager:
-```bash
-sudo apt-get install libfontconfig
 ```
 
 ## API
