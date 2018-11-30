@@ -91,7 +91,7 @@ test('Get chat messages from multiple live streamer', { timeout: 60 * 1000 }, fu
     var chats = messages.filter(function (message) { return message.type === 'chat' })
     var welcomeMessages = chats.filter(function (message) {
       return (
-        message.text.toLowerCase().indexOf('welcome') >= 0
+        message.text.toLowerCase().indexOf('welcome to the chat room!') >= 0
       )
     })
     var userMessages = chats.filter(function (message) {
