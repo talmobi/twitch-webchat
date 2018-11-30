@@ -71,6 +71,7 @@ test('Get chat messages from multiple live streamer', { timeout: 60 * 1000 }, fu
   var count = 0
 
   var ctrl = tw.start(channels, function (err, message) {
+    // console.log( message )
     messages.push(message)
     count++
   })
