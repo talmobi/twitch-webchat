@@ -1,4 +1,5 @@
 const puppeteer = require( 'puppeteer' )
+const treeKill = require( 'tree-kill' )
 
 function getTopStreamers ( callback ) {
   const opts = {
@@ -45,7 +46,12 @@ function getTopStreamers ( callback ) {
         return list
       } )
 
+      const child = browser.process()
+      const pid = child.pid
+
       await browser.close()
+
+      treeKill( pid )
 
       callback( null, list )
     } catch ( err ) {
@@ -331,11 +337,16 @@ function start (opts, callback) {
         type: 'exit',
         text: 'exit'
       })
-
-      try {
-        browser.close()
-      } catch ( err ) { /* ignore */ }
     }
+
+    try {
+      const child = browser.process()
+      const pid = child.pid
+
+      browser.close()
+
+      treeKill( pid )
+    } catch ( err ) { /* ignore */ }
   }
 
   // return api to exit
