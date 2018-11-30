@@ -33,7 +33,8 @@
   },
   "dependencies": {
     "minimist": "1.2.0",
-    "puppeteer": "~1.5.0"
+    "puppeteer": "~1.5.0",
+    "tree-kill": "~1.2.1"
   },
   "devDependencies": {
     "express": "~4.16.3",
