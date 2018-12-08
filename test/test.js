@@ -67,25 +67,43 @@ test('Get chat messages from multiple live streamer', { timeout: 60 * 1000 }, fu
     t.ok(channel && channel.length > 0, 'using top channel from previous test: ' + channel)
   })
 
-  var messages = []
+  var _messages = []
   var count = 0
+
+  var _timeout
+  var _done = false
 
   var ctrl = tw.start(channels, function (err, message) {
     // console.log( message )
-    messages.push(message)
+    _messages.push(message)
     count++
+
+    if ( preCheck() && !_done ) {
+      _done = true
+
+      console.log( 'precheck ok' )
+
+      clearTimeout( _timeout )
+      ctrl.kill()
+      setTimeout(function () {
+        check()
+      }, 1500)
+    }
   })
 
   console.log('gathering messages...')
 
-  setTimeout(function () {
+  // timeout if precheck never finishes
+  _timeout = setTimeout(function () {
     ctrl.kill()
     setTimeout(function () {
       check()
     }, 1500)
   }, 40 * 1000)
 
-  function check () {
+  function preCheck () {
+    var messages = _messages.slice()
+
     var ticks = messages.filter(function (message) { return message.type === 'tick' })
     messages = messages.filter(function (message) { return message.type !== 'tick' })
     var chats = messages.filter(function (message) { return message.type === 'chat' })
@@ -110,6 +128,45 @@ test('Get chat messages from multiple live streamer', { timeout: 60 * 1000 }, fu
     var channel2UserMessages = userMessages.filter(function (message) {
       return message.channel.toLowerCase() === channels[2]
     })
+
+    return (
+      ( ticks.length > 0 ) &&
+      ( welcomeMessages.length === 3 ) &&
+      ( userMessages.length > 10 ) &&
+      ( channel0UserMessages.length > 0 ) &&
+      ( channel1UserMessages.length > 0 ) &&
+      ( channel2UserMessages.length > 0 )
+    )
+  }
+
+  function check () {
+    var messages = _messages.slice()
+
+    var ticks = messages.filter(function (message) { return message.type === 'tick' })
+    messages = messages.filter(function (message) { return message.type !== 'tick' })
+    var chats = messages.filter(function (message) { return message.type === 'chat' })
+    var welcomeMessages = chats.filter(function (message) {
+      return (
+        message.text.toLowerCase().indexOf('welcome to the chat room!') >= 0
+      )
+    })
+    var userMessages = chats.filter(function (message) {
+      return (
+        message.from.toLowerCase().length > 0 &&
+        // message.from.toLowerCase() !== 'jtv' &&
+        message.html.length > 0
+      )
+    })
+    var channel0UserMessages = userMessages.filter(function (message) {
+      return message.channel.toLowerCase() === channels[0]
+    })
+    var channel1UserMessages = userMessages.filter(function (message) {
+      return message.channel.toLowerCase() === channels[1]
+    })
+    var channel2UserMessages = userMessages.filter(function (message) {
+      return message.channel.toLowerCase() === channels[2]
+    })
+
     t.ok(ticks.length > 0, 'tick messages found')
     // t.equal(messages[0].text, 'creating spawn...')
     // t.equal(messages[1].text, 'creating page... ' + channels[0])
