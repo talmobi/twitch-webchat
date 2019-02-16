@@ -131,7 +131,7 @@ function start (opts, callback) {
                 var lines = document.querySelectorAll( '.chat-line__message, .chat-line__status' )
 
                 // filter out already processed lines
-                ;[].filter.call( lines, el => !el._twitchwebchat_has_processed )
+                lines = [].filter.call( lines, el => !el._twitchwebchat_has_processed )
 
                 if (!(lines && lines.length > 0)) return []
 
