@@ -130,6 +130,9 @@ function start (opts, callback) {
               const messages = await page.evaluate( function () {
                 var lines = document.querySelectorAll( '.chat-line__message, .chat-line__status' )
 
+                // filter out already processed lines
+                ;[].filter.call( lines, el => !el._twitchwebchat_has_processed )
+
                 if (!(lines && lines.length > 0)) return []
 
                 function parse (text) {
@@ -281,7 +284,19 @@ function start (opts, callback) {
 
                 // remove the parsed messages from the DOM
                 ;[].forEach.call(lines, function (line) {
-                  line && line.parentNode && line.parentNode.removeChild(line)
+                  // Mark the element as processed by attaching an
+                  // internal id: '_twitchwebchat_has_processed'
+                  // We have to keep the element in the DOM because javascript
+                  // on the page will sometimes attempt to remove the element
+                  // (spam removal, deletes by moderators etc) -> and if the
+                  // element has already been removed (by us right here) then
+                  // the pages javascript will fail and the page will crash and
+                  // we will not be getting any new messages.
+                  // When the messages start piling up the pages javascript
+                  // will remove older messages so we won't have to worry about
+                  // memory or size issues.
+                  line._twitchwebchat_has_processed = Date.now()
+                  line.style.background = 'red'
                 })
 
                 // return the data back to our script context
