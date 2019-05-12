@@ -15,36 +15,8 @@ const THREE_MINUTES = 3 * ONE_MINUTE
 
 var toplist = [ 'ninja' ]
 
-function updateTop () {
-  tw.getTopStreamers( function ( err, list ) {
-    if ( list ) {
-      toplist = list
-      console.log( 'top updated' )
-      render()
-    }
-
-    setTimeout( updateTop, THREE_MINUTES )
-  } )
-}
 
 render()
-
-function render () {
-  const filepath = path.join( __dirname, 'index.mustache' )
-  fs.readFile( filepath, 'utf8', function ( err, text ) {
-    const opts = {
-      defaultChannel: toplist[ 0 ]
-    }
-    const output = mustache.render( text, opts )
-
-    const outputPath = path.join( __dirname, 'index.html' )
-
-    fs.writeFile( outputPath, output, function ( err ) {
-      if ( err ) throw err
-      console.log( 'index.html updated with top: ' + toplist[ 0 ] )
-    } )
-  } )
-}
 
 updateTop()
 
@@ -133,3 +105,34 @@ function run (channel) {
     running = false
   }, timeoutTime);
 };
+
+function updateTop () {
+  console.log( 'getting top list' )
+  tw.getTopStreamers( function ( err, list ) {
+    if ( list ) {
+      toplist = list
+      console.log( 'top updated' )
+      render()
+    }
+
+    setTimeout( updateTop, THREE_MINUTES )
+  } )
+}
+
+function render () {
+  const filepath = path.join( __dirname, 'index.mustache' )
+  fs.readFile( filepath, 'utf8', function ( err, text ) {
+    const opts = {
+      defaultChannel: toplist[ 0 ]
+    }
+    const output = mustache.render( text, opts )
+
+    const outputPath = path.join( __dirname, 'index.html' )
+
+    fs.writeFile( outputPath, output, function ( err ) {
+      if ( err ) throw err
+      console.log( 'index.html updated with top: ' + toplist[ 0 ] )
+    } )
+  } )
+}
+
