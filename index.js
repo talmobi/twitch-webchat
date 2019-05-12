@@ -7,6 +7,16 @@ function getTopStreamers ( callback ) {
     // slowMo: 250 // slow down to more easily see what's going on
   }
 
+  const _timeout = setTimeout( function () {
+    const cb = callback
+
+    // neutralize callback so it's not called after the
+    // timeout has been triggered
+    callback = function () {}
+
+    cb( 'timed out' )
+  }, 1000 * 30 )
+
   ;( async function () {
     try {
       const browser = await puppeteer.launch( opts )
@@ -52,6 +62,7 @@ function getTopStreamers ( callback ) {
 
       treeKill( pid )
 
+      clearTimeout( _timeout )
       callback( null, list )
     } catch ( err ) {
       /* ignore */
