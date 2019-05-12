@@ -12,10 +12,9 @@ function getTopStreamers ( callback ) {
       const browser = await puppeteer.launch( opts )
       const page = await browser.newPage()
 
-      await page.goto( 'https://www.twitch.tv/directory/all', {
-        waitUntil: 'domcontentloaded'
-      } )
+      await page.goto( 'https://www.twitch.tv/directory/all')
       await page.waitFor( '.tw-link.tw-link--inherit' )
+
       const list = await page.evaluate( function () {
         var dict = {}
         var anchors = [].filter.call(
