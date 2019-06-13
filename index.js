@@ -107,7 +107,9 @@ function start (opts, callback) {
 
   // var URL_TEMPLATE = "https://www.twitch.tv/$channel/chat?popout"
   const URL_TEMPLATE = "https://www.twitch.tv/popout/$channel/chat"
+
   let browser
+  const nz = nozombie()
 
   ;( async function () {
     try {
@@ -118,6 +120,10 @@ function start (opts, callback) {
       }
 
       browser = await puppeteer.launch( opts )
+
+      const child = browser.process()
+      const pid = child.pid
+      nz.add( pid )
 
       _channels.forEach( async function ( channel ) {
         try {
@@ -372,13 +378,10 @@ function start (opts, callback) {
     }
 
     try {
-      const child = browser.process()
-      const pid = child.pid
-
       browser.close()
-
-      treeKill( pid )
     } catch ( err ) { /* ignore */ }
+
+    nz.clean()
   }
 
   // return api to exit
