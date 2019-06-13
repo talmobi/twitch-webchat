@@ -113,8 +113,12 @@ function updateTop () {
       toplist = list
       console.log( 'top updated' )
       render()
+    } else {
+      console.log( 'list failed to update: ' )
+      console.log( err )
     }
 
+    console.log( 'scheduling next update in: ' + THREE_MINUTES )
     setTimeout( updateTop, THREE_MINUTES )
   } )
 }
