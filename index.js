@@ -3,6 +3,7 @@ const treeKill = require( 'tree-kill' )
 
 function getTopStreamers ( callback ) {
   const opts = {
+    pipe: true
     // headless: false,
     // slowMo: 250 // slow down to more easily see what's going on
   }
@@ -119,6 +120,7 @@ function start (opts, callback) {
   ;( async function () {
     try {
       const opts = {
+        pipe: true
         // headless: false,
         // slowMo: 250 // slow down to more easily see what's going on
       }
