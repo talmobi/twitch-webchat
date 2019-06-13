@@ -7,6 +7,19 @@ function getTopStreamers ( callback ) {
     // slowMo: 250 // slow down to more easily see what's going on
   }
 
+  const _callback = callback
+  let browser
+
+  callback = function ( ...args ) {
+    try {
+      const child = browser.process()
+      const pid = child.pid
+      treeKill( pid )
+    } catch ( err ) { /* ignore */ }
+
+    _callback.apply( this, args )
+  }
+
   const _timeout = setTimeout( function () {
     const cb = callback
 
@@ -19,7 +32,7 @@ function getTopStreamers ( callback ) {
 
   ;( async function () {
     try {
-      const browser = await puppeteer.launch( opts )
+      browser = await puppeteer.launch( opts )
       const page = await browser.newPage()
 
       await page.goto( 'https://www.twitch.tv/directory/all')
