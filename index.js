@@ -1,5 +1,5 @@
 const puppeteer = require( 'puppeteer' )
-const treeKill = require( 'tree-kill' )
+const nozombie = require( 'nozombie' )
 
 function getTopStreamers ( callback ) {
   const opts = {
@@ -8,32 +8,29 @@ function getTopStreamers ( callback ) {
     // slowMo: 250 // slow down to more easily see what's going on
   }
 
-  const _callback = callback
-  let browser
+  const nz = nozombie()
 
-  callback = function ( ...args ) {
-    try {
-      const child = browser.process()
-      const pid = child.pid
-      treeKill( pid )
-    } catch ( err ) { /* ignore */ }
-
-    _callback.apply( this, args )
+  function finish ( ...args ) {
+    nz.clean()
+    callback.apply( this, args )
   }
 
   const _timeout = setTimeout( function () {
-    const cb = _callback
-
-    // neutralize callback so it's not called after the
+    // negate finish callback so it's not called after the
     // timeout has been triggered
-    _callback = function () {}
+    finish = function () {}
 
-    cb( 'timed out' )
+    callback( 'timed out' )
   }, 1000 * 30 )
 
   ;( async function () {
     try {
-      browser = await puppeteer.launch( opts )
+      const browser = await puppeteer.launch( opts )
+
+      const child = browser.process()
+      const pid = child.pid
+      nz.add( pid )
+
       const page = await browser.newPage()
 
       await page.goto( 'https://www.twitch.tv/directory/all')
@@ -69,18 +66,13 @@ function getTopStreamers ( callback ) {
         return list
       } )
 
-      const child = browser.process()
-      const pid = child.pid
-
       await browser.close()
 
-      treeKill( pid )
-
       clearTimeout( _timeout )
-      callback( null, list )
+      finish( null, list )
     } catch ( err ) {
       /* ignore */
-      callback( err )
+      finish( err )
     }
   } )()
 } // eof getTopStreamers fn
