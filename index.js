@@ -22,11 +22,11 @@ function getTopStreamers ( callback ) {
   }
 
   const _timeout = setTimeout( function () {
-    const cb = callback
+    const cb = _callback
 
     // neutralize callback so it's not called after the
     // timeout has been triggered
-    callback = function () {}
+    _callback = function () {}
 
     cb( 'timed out' )
   }, 1000 * 30 )
