@@ -1,6 +1,37 @@
 const puppeteer = require( 'puppeteer' )
 const nozombie = require( 'nozombie' )
 
+// helper function to turn long-running task with callback
+// to collect callback listeners and respond in bulk and only run one-at-a-time
+function callbackCollectify ( fn ) {
+  let _callbacks = []
+  let _inProgress = false
+
+  const _api = function callbackCollectifyApi ( callback ) {
+    _callbacks.push( callback )
+
+    if ( !_inProgress ) {
+      _inProgress = true
+      _start()
+    }
+  }
+
+  function _start () {
+    process.nextTick( function () {
+      fn( function done ( ...args ) {
+        _callbacks.forEach( function ( callback ) {
+          callback.apply( this, args )
+        } )
+
+        _callbacks = []
+        _inProgress = false
+      } )
+    } )
+  }
+
+  return nameFunction( fn.name, _api )
+}
+
 function getTopStreamers ( callback ) {
   const opts = {
     pipe: true
