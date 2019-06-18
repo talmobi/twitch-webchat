@@ -432,5 +432,5 @@ function start (opts, callback) {
 module.exports = {
   start: start,
   spawn: start,
-  getTopStreamers: getTopStreamers
+  getTopStreamers: callbackCollectify( getTopStreamers )
 }
