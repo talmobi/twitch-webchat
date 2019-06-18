@@ -55,6 +55,7 @@ function getTopStreamers ( callback ) {
     // negate finish callback so it's not called after the
     // timeout has been triggered
     finish = function () {}
+    nz.clean()
 
     callback( 'timed out' )
   }, 1000 * 30 )
