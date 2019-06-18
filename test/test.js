@@ -4,16 +4,40 @@ var test = require('tape')
 
 var _topChannels
 
+test('getTopStreamers name is correct', { timeout: 30 * 1000 }, function (t) {
+  t.plan(1)
+
+  t.equal( tw.getTopStreamers.name, 'getTopStreamers', 'name is correct!' )
+})
+
+
 test('Get list of top live streamers', { timeout: 30 * 1000 }, function (t) {
   t.plan(5)
+
   tw.getTopStreamers(function (err, channels) {
-    t.error(err)
+    t.error(err, 'no errors getting top live streamers')
     t.ok(Array.isArray(channels), 'got array of channels')
     t.ok(channels.length > 0, 'non-empty array')
     t.equal(typeof channels[0], 'string')
     t.ok(channels[0].length > 0, 'found top channel: ' + channels[0])
     _topChannels = channels.slice()
   })
+})
+
+test('Get list of top live streamers 10 times with 1 call', { timeout: 30 * 1000 }, function (t) {
+  t.plan(2 * 10)
+
+  let _channels = undefined
+
+  for ( let i = 0; i < 10; i++ ) {
+    tw.getTopStreamers(function (err, channels) {
+      t.error(err, 'no errors getting top live streamers')
+
+      if ( !_channels ) _channels = channels
+
+      t.deepEqual(_channels, channels, 'channels got in bulk are the same OK!')
+    })
+  }
 })
 
 test('Get chat messages from top live streamer', { timeout: 60 * 1000 }, function (t) {
