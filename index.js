@@ -1,6 +1,11 @@
 const puppeteer = require( 'puppeteer' )
 const nozombie = require( 'nozombie' )
 
+// ref: https://stackoverflow.com/a/41854075/3496140
+function nameFunction(name, body) {
+  return {[name](...args) {return body(...args)}}[name]
+}
+
 // helper function to turn long-running task with callback
 // to collect callback listeners and respond in bulk and only run one-at-a-time
 function callbackCollectify ( fn ) {
