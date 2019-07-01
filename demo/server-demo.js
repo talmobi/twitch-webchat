@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
-var io = require('kiite')(server);
+var io = require('kiite')(server, { enableCC: true } );
 
 var tw = require('../index.js');
 
