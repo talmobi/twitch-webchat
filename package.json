@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "express": "~4.16.3",
-    "kiite": "~0.3.1",
+    "kiite": "~0.3.2",
     "mustache": "~2.3.0",
     "tape": "~4.6.3"
   }
