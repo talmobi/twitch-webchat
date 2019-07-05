@@ -444,7 +444,7 @@ function start (opts, callback) {
     }
   } )()
 
-  function exit () {
+  async function exit () {
     _running = false
 
     if ( !_exitCalled ) {
@@ -457,7 +457,7 @@ function start (opts, callback) {
     }
 
     try {
-      browser.close()
+      await browser.close()
     } catch ( err ) { /* ignore */ }
 
     nz.clean()
