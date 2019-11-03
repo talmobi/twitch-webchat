@@ -75,13 +75,57 @@ function getTopStreamers ( callback ) {
 
       const list = await page.evaluate( function () {
         var dict = {}
-        var anchors = [].filter.call(
-          document.querySelectorAll(
-            'a.tw-link.tw-link--inherit'
-          ), function ( el ) {
-            console.log( el.href )
-            var split = el && el.href && el.href.split( '/' )
-            return ( split.length === 4 )
+
+        var previews = document.querySelectorAll(
+          '.preview-card'
+        )
+
+        console.log( 'previews.length: ' + previews.length )
+
+        // remove channels with default avatars
+        // ( usually bot created channels with lots of views of e.g. illegal
+        // steams that we are not intereted in )
+        previews = [].filter.call(
+          previews,
+          function ( el ) {
+            var img = (
+              el.querySelector( 'img.tw-avatar__img.tw-image' ) ||
+              el.querySelector( 'img.tw-image' ) ||
+              el.querySelector( 'img' )
+            )
+
+            if ( !img ) return false
+
+            // console.log( img )
+
+            if ( img.src.indexOf( 'user-default' ) > 0 ) {
+              console.log( 'skipping channel with user-default avatar (probably illegal stream)' )
+              return false // don't keep
+            }
+            return true // keep by default
+          }
+        )
+
+        console.log( '(after) previews.length: ' + previews.length )
+
+        var anchors = []
+        ;[].forEach.call(
+          previews,
+          function ( el ) {
+            var aels = el.querySelectorAll(
+              'a.tw-link.tw-link--inherit'
+            )
+
+            ;[].forEach.call(
+              aels,
+              function ( el ) {
+                console.log( el.href )
+                var split = el && el.href && el.href.split( '/' )
+                if ( split.length === 4 ) {
+                  anchors.push( el )
+                }
+              }
+            )
           }
         )
 
@@ -104,6 +148,8 @@ function getTopStreamers ( callback ) {
       } )
 
       await browser.close()
+
+      // console.log( list )
 
       clearTimeout( _timeout )
       finish( null, list )
