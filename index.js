@@ -114,6 +114,7 @@ function getTopStreamers ( callback ) {
           function ( el ) {
             var aels = el.querySelectorAll(
               'a.tw-link.tw-link--inherit'
+              // 'a.tw-link.tw-interactive'
             )
 
             ;[].forEach.call(
