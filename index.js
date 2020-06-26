@@ -77,7 +77,7 @@ function getTopStreamers ( callback ) {
         var dict = {}
 
         var previews = document.querySelectorAll(
-          '.preview-card'
+          '.side-nav-card'
         )
 
         console.log( 'previews.length: ' + previews.length )
@@ -112,21 +112,11 @@ function getTopStreamers ( callback ) {
         ;[].forEach.call(
           previews,
           function ( el ) {
-            var aels = el.querySelectorAll(
-              'a.tw-link.tw-link--inherit'
-              // 'a.tw-link.tw-interactive'
-            )
-
-            ;[].forEach.call(
-              aels,
-              function ( el ) {
-                console.log( el.href )
-                var split = el && el.href && el.href.split( '/' )
-                if ( split.length === 4 ) {
-                  anchors.push( el )
-                }
-              }
-            )
+            var link = el && el.href
+            var split = link && link.split( '/' )
+            if ( split && split.length === 4 ) {
+              anchors.push( el )
+            }
           }
         )
 
