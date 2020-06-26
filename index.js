@@ -73,6 +73,8 @@ function getTopStreamers ( callback ) {
       await page.goto( 'https://www.twitch.tv/directory/all')
       await page.waitFor( '.tw-link.tw-link--inherit' )
 
+      // console.log( ' >>> GIRAFFE <<< ' )
+
       const list = await page.evaluate( function () {
         var dict = {}
 
@@ -88,6 +90,8 @@ function getTopStreamers ( callback ) {
         previews = [].filter.call(
           previews,
           function ( el ) {
+            el.style.background = 'red'
+
             var img = (
               el.querySelector( 'img.tw-avatar__img.tw-image' ) ||
               el.querySelector( 'img.tw-image' ) ||
@@ -97,11 +101,14 @@ function getTopStreamers ( callback ) {
             if ( !img ) return false
 
             // console.log( img )
+            el.style.background = 'purple'
 
             if ( img.src.indexOf( 'user-default' ) > 0 ) {
               console.log( 'skipping channel with user-default avatar (probably illegal stream)' )
               return false // don't keep
             }
+
+            el.style.background = 'blue'
             return true // keep by default
           }
         )
@@ -137,6 +144,8 @@ function getTopStreamers ( callback ) {
         console.log( 'returning' )
         return list
       } )
+
+      // console.log( ' >>> list.length: ' + list.length )
 
       await browser.close()
 
