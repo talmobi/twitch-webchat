@@ -39,7 +39,7 @@ function callbackCollectify ( fn ) {
 
 function getTopStreamers ( callback ) {
   const opts = {
-    pipe: true
+    // pipe: true,
     // headless: false,
     // slowMo: 250 // slow down to more easily see what's going on
   }
