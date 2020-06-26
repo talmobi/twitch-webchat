@@ -32,7 +32,7 @@
     "url": "https://github.com/talmobi/twitch-webchat/issues"
   },
   "dependencies": {
-    "minimist": "1.2.0",
+    "minimist": "~1.2.5",
     "nozombie": "~0.5.1",
     "puppeteer": "~1.17.0"
   },
