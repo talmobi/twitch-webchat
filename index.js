@@ -71,7 +71,8 @@ function getTopStreamers ( callback ) {
       const page = await browser.newPage()
 
       await page.goto( 'https://www.twitch.tv/directory/all')
-      await page.waitFor( '.tw-link.tw-link--inherit' )
+      await page.waitFor( '.side-nav-card' )
+      await page.waitFor( '.side-nav-card__live-status' )
 
       // console.log( ' >>> GIRAFFE <<< ' )
 
