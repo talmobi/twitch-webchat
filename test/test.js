@@ -41,7 +41,7 @@ test('Get list of top live streamers 10 times with 1 call', { timeout: 30 * 1000
 })
 
 test('Get chat messages from top live streamer', { timeout: 60 * 1000 }, function (t) {
-  t.plan(5)
+  t.plan(6)
 
   var channel = _topChannels[0]
   t.ok(channel && channel.length > 0, 'using top channel from previous test: ' + channel)
@@ -68,6 +68,7 @@ test('Get chat messages from top live streamer', { timeout: 60 * 1000 }, functio
     // t.equal(messages[1].text, 'creating page... ' + channel)
     // t.equal(messages[2].text, 'opening page...')
     // t.equal(messages[3].text, 'page opened and ready [' + channel + ']')
+    t.ok( chats && chats.length >= 1, 'user chat messages found' )
     t.ok(
       chats[0].text.toLowerCase().indexOf('welcome') !== -1,
       'welcome message found'
