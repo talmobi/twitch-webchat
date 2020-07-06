@@ -57,7 +57,11 @@ function getTopStreamersFull ( callback ) {
   const opts = {
     // pipe: true,
     // headless: false,
-    // slowMo: 250 // slow down to more easily see what's going on
+    // slowMo: 250, // slow down to more easily see what's going on
+    defaultViewport: {
+      width: 1920,
+      height: 1080
+    }
   }
 
   const nz = nozombie()
