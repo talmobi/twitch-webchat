@@ -78,7 +78,7 @@ function getTopStreamersFull ( callback ) {
     nz.clean()
 
     callback( 'timed out' )
-  }, 1000 * 30 )
+  }, 1000 * 45 )
 
   ;( async function () {
     try {
