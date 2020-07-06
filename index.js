@@ -88,7 +88,8 @@ function getTopStreamersFull ( callback ) {
       const pid = child.pid
       nz.add( pid )
 
-      const page = await browser.newPage()
+      const pages = await browser.pages()
+      const page = pages[ 0 ]
 
       await page.goto( 'https://www.twitch.tv/directory/all')
       await page.waitFor( '.side-nav-card' )
