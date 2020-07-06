@@ -38,6 +38,22 @@ function callbackCollectify ( fn ) {
 }
 
 function getTopStreamers ( callback ) {
+  getTopStreamersFull( function ( err, list ) {
+    if ( err ) return callback( err )
+
+    try {
+      const names = list.map( function ( item ) {
+        return item.name + ' : ' + item.liveCount
+      } )
+
+      callback( null, names )
+    } catch ( err ) {
+      callback( err )
+    }
+  } )
+} // eof getTopStreamers fn
+
+function getTopStreamersFull ( callback ) {
   const opts = {
     // pipe: true,
     // headless: false,
@@ -159,7 +175,7 @@ function getTopStreamers ( callback ) {
       finish( err )
     }
   } )()
-} // eof getTopStreamers fn
+} // eof getTopStreamersFull fn
 
 function start (opts, callback) {
   var
