@@ -91,9 +91,15 @@ function getTopStreamersFull ( callback ) {
       const pages = await browser.pages()
       const page = pages[ 0 ]
 
-      await page.goto( 'https://www.twitch.tv/directory/all')
+      await page.goto( 'https://www.twitch.tv/directory/all?sort=VIEWER_COUNT')
+
+      await page.waitFor( 'article' )
       await page.waitFor( '.side-nav-card' )
       await page.waitFor( '.side-nav-card__live-status' )
+      await page.waitFor( '.tw-media-card-stat' )
+
+      // .tw-media-card-stat > span
+      // .tw-media-card-meta__links
 
       // console.log( ' >>> GIRAFFE <<< ' )
 
