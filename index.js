@@ -38,10 +38,31 @@ function callbackCollectify ( fn ) {
 }
 
 function getTopStreamers ( callback ) {
+  getTopStreamersFull( function ( err, list ) {
+    if ( err ) return callback( err )
+
+    try {
+      const names = list.map( function ( item ) {
+        // return item.name + ' : ' + item.liveCount
+        return item.name
+      } )
+
+      callback( null, names )
+    } catch ( err ) {
+      callback( err )
+    }
+  } )
+} // eof getTopStreamers fn
+
+function getTopStreamersFull ( callback ) {
   const opts = {
     // pipe: true,
     // headless: false,
-    // slowMo: 250 // slow down to more easily see what's going on
+    // slowMo: 250, // slow down to more easily see what's going on
+    defaultViewport: {
+      width: 1920,
+      height: 1080
+    }
   }
 
   const nz = nozombie()
@@ -58,7 +79,7 @@ function getTopStreamers ( callback ) {
     nz.clean()
 
     callback( 'timed out' )
-  }, 1000 * 30 )
+  }, 1000 * 45 )
 
   ;( async function () {
     try {
@@ -68,81 +89,80 @@ function getTopStreamers ( callback ) {
       const pid = child.pid
       nz.add( pid )
 
-      const page = await browser.newPage()
+      const pages = await browser.pages()
+      const page = pages[ 0 ]
 
-      await page.goto( 'https://www.twitch.tv/directory/all')
+      await page.goto( 'https://www.twitch.tv/directory/all?sort=VIEWER_COUNT')
+
+      await page.waitFor( 'article' )
       await page.waitFor( '.side-nav-card' )
       await page.waitFor( '.side-nav-card__live-status' )
+      await page.waitFor( '.tw-media-card-stat' )
+
+      // .tw-media-card-stat > span
+      // .tw-media-card-meta__links
 
       // console.log( ' >>> GIRAFFE <<< ' )
 
       const list = await page.evaluate( function () {
-        var dict = {}
+        var articles = document.querySelectorAll( 'article' )
 
-        var previews = document.querySelectorAll(
-          '.side-nav-card'
-        )
+        var lock = {}
+        var list = []
 
-        console.log( 'previews.length: ' + previews.length )
-
-        // remove channels with default avatars
-        // ( usually bot created channels with lots of views of e.g. illegal
-        // steams that we are not intereted in )
-        previews = [].filter.call(
-          previews,
+        ;[].forEach.call(
+          articles,
           function ( el ) {
-            el.style.background = 'red'
+            el.style.background = 'cyan'
 
-            var img = (
-              el.querySelector( 'img.tw-avatar__img.tw-image' ) ||
-              el.querySelector( 'img.tw-image' ) ||
-              el.querySelector( 'img' )
-            )
+            var avatar = el.querySelector( '.tw-avatar img' )
+            if ( !avatar ) return
 
-            if ( !img ) return false
-
-            // console.log( img )
-            el.style.background = 'purple'
-
-            if ( img.src.indexOf( 'user-default' ) > 0 ) {
+            if ( avatar.src.indexOf( 'user-default' ) > 0 ) {
               console.log( 'skipping channel with user-default avatar (probably illegal stream)' )
-              return false // don't keep
+              return
             }
 
             el.style.background = 'blue'
-            return true // keep by default
+
+            var liveCountLabel = el.querySelector( '.tw-media-card-stat' ).innerText
+
+            // match view count labels as numbers
+            const m = liveCountLabel.match( /(\d+(\.\d+)?)K?M?/ )
+            var liveCount = Number( m[ 1 ] )
+
+            // thousands
+            if ( m[ 0 ].indexOf( 'K' ) > 0 ) liveCount *= 1000
+
+            // millions
+            if ( m[ 0 ].indexOf( 'M' ) > 0 ) liveCount *= 1000 * 1000
+
+            el.style.background = 'purple'
+
+            var link = el.querySelector( '.tw-media-card-meta__links a' )
+            var href = link.href
+            var name = href.split( '/' )[ 3 ]
+
+            if ( !name ) return
+
+            if ( lock[ name ] ) return
+            lock[ name ] = name
+
+            el.style.background = 'yellow'
+
+            list.push( {
+              name: name,
+              href: link.href,
+              avatar: avatar.src,
+              liveCount: liveCount
+            } )
           }
         )
 
-        console.log( '(after) previews.length: ' + previews.length )
+        list.sort( function ( a, b ) {
+          return b.liveCount - a.liveCount
+        } )
 
-        var anchors = []
-        ;[].forEach.call(
-          previews,
-          function ( el ) {
-            var link = el && el.href
-            var split = link && link.split( '/' )
-            if ( split && split.length === 4 ) {
-              anchors.push( el )
-            }
-          }
-        )
-
-        console.log( 'anchors found: ' + anchors.length )
-
-        for ( var i = 0; i < anchors.length; i++ ) {
-          try {
-            var a = anchors[ i ]
-            if ( a && a.href ) dict[a.href] = decodeURI( a.href.toLowerCase() )
-          } catch (err) { /* ignore */ }
-        }
-
-        // return result to callback funciton [1]
-        var list = Object.keys(dict).map(function (key) {
-          return dict[key].split( '/' )[ 3 ]
-        })
-
-        console.log( 'returning' )
         return list
       } )
 
@@ -159,7 +179,7 @@ function getTopStreamers ( callback ) {
       finish( err )
     }
   } )()
-} // eof getTopStreamers fn
+} // eof getTopStreamersFull fn
 
 function start (opts, callback) {
   var
