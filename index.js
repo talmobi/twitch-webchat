@@ -104,72 +104,64 @@ function getTopStreamersFull ( callback ) {
       // console.log( ' >>> GIRAFFE <<< ' )
 
       const list = await page.evaluate( function () {
-        var dict = {}
+        var articles = document.querySelectorAll( 'article' )
 
-        var previews = document.querySelectorAll(
-          '.side-nav-card'
-        )
+        var lock = {}
+        var list = []
 
-        console.log( 'previews.length: ' + previews.length )
-
-        // remove channels with default avatars
-        // ( usually bot created channels with lots of views of e.g. illegal
-        // steams that we are not intereted in )
-        previews = [].filter.call(
-          previews,
+        ;[].forEach.call(
+          articles,
           function ( el ) {
-            el.style.background = 'red'
+            el.style.background = 'cyan'
 
-            var img = (
-              el.querySelector( 'img.tw-avatar__img.tw-image' ) ||
-              el.querySelector( 'img.tw-image' ) ||
-              el.querySelector( 'img' )
-            )
+            var avatar = el.querySelector( '.tw-avatar img' )
+            if ( !avatar ) return
 
-            if ( !img ) return false
-
-            // console.log( img )
-            el.style.background = 'purple'
-
-            if ( img.src.indexOf( 'user-default' ) > 0 ) {
+            if ( avatar.src.indexOf( 'user-default' ) > 0 ) {
               console.log( 'skipping channel with user-default avatar (probably illegal stream)' )
-              return false // don't keep
+              return
             }
 
             el.style.background = 'blue'
-            return true // keep by default
+
+            var liveCountLabel = el.querySelector( '.tw-media-card-stat' ).innerText
+
+            // match view count labels as numbers
+            const m = liveCountLabel.match( /(\d+(\.\d+)?)K?M?/ )
+            var liveCount = Number( m[ 1 ] )
+
+            // thousands
+            if ( m[ 0 ].indexOf( 'K' ) > 0 ) liveCount *= 1000
+
+            // millions
+            if ( m[ 0 ].indexOf( 'M' ) > 0 ) liveCount *= 1000 * 1000
+
+            el.style.background = 'purple'
+
+            var link = el.querySelector( '.tw-media-card-meta__links a' )
+            var href = link.href
+            var name = href.split( '/' )[ 3 ]
+
+            if ( !name ) return
+
+            if ( lock[ name ] ) return
+            lock[ name ] = name
+
+            el.style.background = 'yellow'
+
+            list.push( {
+              name: name,
+              href: link.href,
+              avatar: avatar.src,
+              liveCount: liveCount
+            } )
           }
         )
 
-        console.log( '(after) previews.length: ' + previews.length )
+        list.sort( function ( a, b ) {
+          return b.liveCount - a.liveCount
+        } )
 
-        var anchors = []
-        ;[].forEach.call(
-          previews,
-          function ( el ) {
-            var link = el && el.href
-            var split = link && link.split( '/' )
-            if ( split && split.length === 4 ) {
-              anchors.push( el )
-            }
-          }
-        )
-
-        console.log( 'anchors found: ' + anchors.length )
-
-        for ( var i = 0; i < anchors.length; i++ ) {
-          try {
-            var a = anchors[ i ]
-            if ( a && a.href ) dict[a.href] = decodeURI( a.href.toLowerCase() )
-          } catch (err) { /* ignore */ }
-        }
-
-        // return result to callback funciton [1]
-        var list = Object.keys(dict).map(function (key) {
-          return dict[key].split( '/' )[ 3 ]
-        })
-
-        console.log( 'returning' )
         return list
       } )
 
