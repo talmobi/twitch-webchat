@@ -43,7 +43,8 @@ function getTopStreamers ( callback ) {
 
     try {
       const names = list.map( function ( item ) {
-        return item.name + ' : ' + item.liveCount
+        // return item.name + ' : ' + item.liveCount
+        return item.name
       } )
 
       callback( null, names )
