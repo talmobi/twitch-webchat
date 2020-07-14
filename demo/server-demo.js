@@ -126,8 +126,13 @@ function updateTop () {
 function render () {
   const filepath = path.join( __dirname, 'index.mustache' )
   fs.readFile( filepath, 'utf8', function ( err, text ) {
+    const channelName = toplist[ 0 ]
+    if ( !channelName ) {
+      return console.log( 'channel name was "undefined", ignoring' )
+    }
+
     const opts = {
-      defaultChannel: toplist[ 0 ]
+      defaultChannel: channelName
     }
     const output = mustache.render( text, opts )
 
@@ -135,7 +140,7 @@ function render () {
 
     fs.writeFile( outputPath, output, function ( err ) {
       if ( err ) throw err
-      console.log( 'index.html updated with top: ' + toplist[ 0 ] )
+      console.log( 'index.html updated with top: ' + channelName )
     } )
   } )
 }
