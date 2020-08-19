@@ -94,6 +94,8 @@ function badgeify (letter, color) {
 }
 
 var ctrl = tw.start(channels, function (err, msg) {
+  if ( err ) throw err
+
   switch (msg.type) {
     case 'chat':
       if (!msg.text || !msg.from) {
