@@ -274,6 +274,31 @@ function start (opts, callback) {
                     .trim() || text
                 }
 
+                function _parseSubscriberMessage ( text ) {
+                  // text sample: 68-Month Subscriber (Tier 3, 5-Year Badge)
+                  const s = {
+                    alt: text
+                  }
+
+                  s.toString = function () {
+                    return text
+                  }
+
+                  try {
+                    s.months = Number( /(\d+).?month/i.exec( text )[ 1 ] )
+                  } catch ( err ) { /*ignore*/ }
+
+                  try {
+                    s.tier = Number( /tier.?(\d+)/i.exec( text )[ 1 ] )
+                  } catch ( err ) { /*ignore*/ }
+
+                  try {
+                    s.badge = Number( /(\d+).?year/i.exec( text )[ 1 ] )
+                  } catch ( err ) { /*ignore*/ }
+
+                  return s
+                }
+
                 var messages = []
                 ;[].forEach.call(lines, function (line) {
                   var system = undefined
@@ -381,7 +406,7 @@ function start (opts, callback) {
                     }
 
                     if (t.indexOf('subscriber') !== -1) {
-                      subscriber = itemText
+                      subscriber = _parseSubscriberMessage( itemText )
                     }
 
                     if (t.indexOf('prime') !== -1) {
