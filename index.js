@@ -295,11 +295,14 @@ function start (opts, callback) {
                         return !!el.getAttribute( 'data-a-target' )
                       } )
                       .map( function ( el ) {
-                        switch ( el.getAttribute( 'data-a-target' ) ) {
+                        var attr = el.getAttribute( 'data-a-target' )
+                        switch ( attr ) {
                           case 'emote-name':
                             return el.querySelector( 'img' ).alt
-                            break
-                          default: return el.textContent
+                          case 'chat-message-text':
+                            return el.textContent
+                          default:
+                            return ''
                         }
                       } )
                       .join( '' )
@@ -314,8 +317,16 @@ function start (opts, callback) {
                         return !!el.getAttribute( 'data-a-target' )
                       } )
                       .map( function ( el ) {
-                        return el.innerHTML
-                      } )
+                        var attr = el.getAttribute( 'data-a-target' )
+                        switch ( attr ) {
+                          case 'emote-name':
+                            return el.querySelector( 'img' ).outerHTML
+                          case 'chat-message-text':
+                            return '<span>' + el.textContent + '</span>'
+                          default:
+                            return ''
+                        }
+                        } )
                       .join( '' )
                     )
                   } else {
@@ -324,7 +335,7 @@ function start (opts, callback) {
 
                     if ( system.indexOf( 'Welcome to the chat room!' ) === 0 ) {
                       from = 'jtv'
-                      html = line.innerHTML
+                      html = '<span>' + line.textContent + '</span>'
                       system = false
                     }
                   }
