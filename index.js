@@ -288,8 +288,12 @@ function start (opts, callback) {
 
                     text = parse(
                       [].slice.call(
-                        line.querySelectorAll( ':scope > span' ), 2
+                        line.querySelectorAll( ':scope div > span' )
                       )
+                      .filter( function ( el ) {
+                        // keep only user message related spans
+                        return !!el.getAttribute( 'data-a-target' )
+                      } )
                       .map( function ( el ) {
                         switch ( el.getAttribute( 'data-a-target' ) ) {
                           case 'emote-name':
@@ -303,8 +307,12 @@ function start (opts, callback) {
 
                     html = (
                       [].slice.call(
-                        line.querySelectorAll( ':scope > span' ), 2
+                        line.querySelectorAll( ':scope div > span' )
                       )
+                      .filter( function ( el ) {
+                        // keep only user message related spans
+                        return !!el.getAttribute( 'data-a-target' )
+                      } )
                       .map( function ( el ) {
                         return el.innerHTML
                       } )
