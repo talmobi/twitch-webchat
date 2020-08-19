@@ -108,20 +108,25 @@ var ctrl = tw.start(channels, function (err, msg) {
         badgeString += msg.broadcaster ? badgeify('B', 'red') : ''
         badgeString += msg.staff ? badgeify('Staff', 'yellow') : ''
 
-        badgeString += msg.subscriber ?
-          badgeify(
-            'S' +
-            msg.subscriber.replace(/\D+/g, '') +
-            (
-              msg.subscriber.replace(/\D+/g, '') ?
-              msg.subscriber.replace(/[^a-zA-Z]+/g, '')[0]
-              : ''
-            ) , 'magenta'
-          ) : ''
+        if ( msg.subscriber ) {
+          var label = msg.subscriber.months || ''
+
+          if ( msg.subscriber.tier ) {
+            label += cc( 'T' + msg.subscriber.tier, c[ 'green' ] )
+          }
+
+          badgeString += (
+            badgeify(
+              'S' +
+              label,
+              'magenta'
+            )
+          )
+        }
 
         badgeString += msg.prime ? badgeify('P', 'blue') : ''
         badgeString += msg.moderator ? badgeify('M', 'green') : ''
-        badgeString += msg.turbo ? badgeify('T', 'gray') : ''
+        badgeString += msg.turbo ? badgeify('R', 'gray') : ''
 
         badgeString += msg.cheer ?
           badgeify('C' + msg.cheer.replace(/\D+/g, ''), 'cyan') : ''
