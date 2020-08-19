@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "minimist": "~1.2.5",
-    "nozombie": "~0.5.1",
+    "nozombie": "~0.7.0",
     "puppeteer": "~1.17.0"
   },
   "devDependencies": {
