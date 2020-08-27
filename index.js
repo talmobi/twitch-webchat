@@ -55,6 +55,9 @@ function getTopStreamers ( callback ) {
 } // eof getTopStreamers fn
 
 function getTopStreamersFull ( callback ) {
+  getTopStreamersFull.nozombie = getTopStreamersFull.nozombie || nozombie()
+  const nz = getTopStreamersFull.nozombie
+
   const opts = {
     // pipe: true,
     // headless: false,
@@ -63,13 +66,6 @@ function getTopStreamersFull ( callback ) {
       width: 1920,
       height: 1080
     }
-  }
-
-  const nz = nozombie()
-
-  function finish ( ...args ) {
-    nz.clean()
-    callback.apply( this, args )
   }
 
   const _timeout = setTimeout( function () {
@@ -81,13 +77,19 @@ function getTopStreamersFull ( callback ) {
     callback( 'timed out' )
   }, 1000 * 45 )
 
+  function finish ( ...args ) {
+    clearTimeout( _timeout )
+    nz.clean()
+    callback.apply( this, args )
+  }
+
   ;( async function () {
     try {
       const browser = await puppeteer.launch( opts )
 
       const child = browser.process()
       const pid = child.pid
-      nz.add( pid )
+      nz.add( pid, 60 * 1000 )
 
       const pages = await browser.pages()
       const page = pages[ 0 ]
@@ -172,7 +174,6 @@ function getTopStreamersFull ( callback ) {
 
       // console.log( list )
 
-      clearTimeout( _timeout )
       finish( null, list )
     } catch ( err ) {
       /* ignore */
@@ -182,6 +183,9 @@ function getTopStreamersFull ( callback ) {
 } // eof getTopStreamersFull fn
 
 function start (opts, callback) {
+  start.nozombie = start.nozombie || nozombie()
+  const nz = start.nozombie
+
   var
     _channels = opts,
     _interval = 1000,
@@ -213,305 +217,307 @@ function start (opts, callback) {
   const URL_TEMPLATE = "https://www.twitch.tv/popout/$channel/chat"
 
   let browser
-  const nz = nozombie()
 
-  ;( async function () {
-    try {
-      const opts = {
-        pipe: true
-        // headless: false,
-        // slowMo: 250 // slow down to more easily see what's going on
-      }
+  nz.clean( next )
+  function next () {
+    ;( async function () {
+      try {
+        const opts = {
+          pipe: true
+          // headless: false,
+          // slowMo: 250 // slow down to more easily see what's going on
+        }
 
-      browser = await puppeteer.launch( opts )
+        browser = await puppeteer.launch( opts )
 
-      const child = browser.process()
-      const pid = child.pid
-      nz.add( pid )
+        const child = browser.process()
+        const pid = child.pid
+        nz.add( pid )
 
-      _channels.forEach( async function ( channel ) {
-        try {
-          const url = URL_TEMPLATE.replace('$channel', channel)
+        _channels.forEach( async function ( channel ) {
+          try {
+            const url = URL_TEMPLATE.replace('$channel', channel)
 
-          const page = await browser.newPage()
+            const page = await browser.newPage()
 
-          await page.goto( url, {
-            waitUntil: 'domcontentloaded'
-          } )
-          await page.waitFor( function () {
-            const el = document.querySelector( 'div[data-a-target="chat-welcome-message"].chat-line__status' )
-            return !!el
-          }, { polling: 250 } )
+            await page.goto( url, {
+              waitUntil: 'domcontentloaded'
+            } )
+            await page.waitFor( function () {
+              const el = document.querySelector( 'div[data-a-target="chat-welcome-message"].chat-line__status' )
+              return !!el
+            }, { polling: 250 } )
 
-          tick()
+            tick()
 
-          async function tick () {
-            // console.log( ' == CALLING TICK == ' )
-            callback = function ( err, evt ) {
-              if ( !_exitCalled ) {
-                _callback( err, evt )
+            async function tick () {
+              // console.log( ' == CALLING TICK == ' )
+              callback = function ( err, evt ) {
+                if ( !_exitCalled ) {
+                  _callback( err, evt )
+                }
               }
-            }
 
-            try {
-              const messages = await page.evaluate( function () {
-                var lines = document.querySelectorAll( '.chat-line__message, .chat-line__status' )
+              try {
+                const messages = await page.evaluate( function () {
+                  var lines = document.querySelectorAll( '.chat-line__message, .chat-line__status' )
 
-                // filter out already processed lines
-                lines = [].filter.call( lines, el => !el._twitchwebchat_has_processed )
+                  // filter out already processed lines
+                  lines = [].filter.call( lines, el => !el._twitchwebchat_has_processed )
 
-                if (!(lines && lines.length > 0)) return []
+                  if (!(lines && lines.length > 0)) return []
 
-                function parse (text) {
-                  if ( text && text.textContent ) text = text.textContent
-                  return text && text
-                    .split(/[\r\n]/g)
-                    .map(function(str) { return str.trim() })
-                    .filter(function (str) {
-                      return str.trim().length !== 0
-                    })
-                    .join(' ')
-                    .trim() || text
-                }
-
-                function _parseSubscriberMessage ( text ) {
-                  // text sample: 68-Month Subscriber (Tier 3, 5-Year Badge)
-                  const s = {
-                    alt: text
+                  function parse (text) {
+                    if ( text && text.textContent ) text = text.textContent
+                    return text && text
+                      .split(/[\r\n]/g)
+                      .map(function(str) { return str.trim() })
+                      .filter(function (str) {
+                        return str.trim().length !== 0
+                      })
+                      .join(' ')
+                      .trim() || text
                   }
 
-                  s.toString = function () {
-                    return text
+                  function _parseSubscriberMessage ( text ) {
+                    // text sample: 68-Month Subscriber (Tier 3, 5-Year Badge)
+                    const s = {
+                      alt: text
+                    }
+
+                    s.toString = function () {
+                      return text
+                    }
+
+                    try {
+                      s.months = Number( /(\d+).?month/i.exec( text )[ 1 ] )
+                    } catch ( err ) { /*ignore*/ }
+
+                    try {
+                      s.tier = Number( /tier.?(\d+)/i.exec( text )[ 1 ] )
+                    } catch ( err ) { /*ignore*/ }
+
+                    try {
+                      s.badge = Number( /(\d+).?year/i.exec( text )[ 1 ] )
+                    } catch ( err ) { /*ignore*/ }
+
+                    return s
                   }
 
-                  try {
-                    s.months = Number( /(\d+).?month/i.exec( text )[ 1 ] )
-                  } catch ( err ) { /*ignore*/ }
+                  var messages = []
+                  ;[].forEach.call(lines, function (line) {
+                    var system = undefined
+                    var from = undefined
+                    var text = undefined
+                    var html = undefined
 
-                  try {
-                    s.tier = Number( /tier.?(\d+)/i.exec( text )[ 1 ] )
-                  } catch ( err ) { /*ignore*/ }
-
-                  try {
-                    s.badge = Number( /(\d+).?year/i.exec( text )[ 1 ] )
-                  } catch ( err ) { /*ignore*/ }
-
-                  return s
-                }
-
-                var messages = []
-                ;[].forEach.call(lines, function (line) {
-                  var system = undefined
-                  var from = undefined
-                  var text = undefined
-                  var html = undefined
-
-                  if ( line.className !== 'chat-line__status' ) {
-                    from = parse(
-                      line.querySelector( '.chat-line__username' )
-                    )
-
-                    text = parse(
-                      [].slice.call(
-                        line.querySelectorAll( ':scope div > span' )
+                    if ( line.className !== 'chat-line__status' ) {
+                      from = parse(
+                        line.querySelector( '.chat-line__username' )
                       )
-                      .filter( function ( el ) {
-                        // keep only user message related spans
-                        return !!el.getAttribute( 'data-a-target' )
-                      } )
-                      .map( function ( el ) {
-                        var attr = el.getAttribute( 'data-a-target' )
-                        switch ( attr ) {
-                          case 'emote-name':
-                            return el.querySelector( 'img' ).alt
-                          case 'chat-message-text':
-                            return el.textContent
-                          default:
-                            return ''
-                        }
-                      } )
-                      .join( '' )
-                    )
 
-                    html = (
-                      [].slice.call(
-                        line.querySelectorAll( ':scope div > span' )
-                      )
-                      .filter( function ( el ) {
-                        // keep only user message related spans
-                        return !!el.getAttribute( 'data-a-target' )
-                      } )
-                      .map( function ( el ) {
-                        var attr = el.getAttribute( 'data-a-target' )
-                        switch ( attr ) {
-                          case 'emote-name':
-                            return el.querySelector( 'img' ).outerHTML
-                          case 'chat-message-text':
-                            return '<span>' + el.textContent + '</span>'
-                          default:
-                            return ''
-                        }
+                      text = parse(
+                        [].slice.call(
+                          line.querySelectorAll( ':scope div > span' )
+                        )
+                        .filter( function ( el ) {
+                          // keep only user message related spans
+                          return !!el.getAttribute( 'data-a-target' )
                         } )
-                      .join( '' )
-                    )
-                  } else {
-                    system = line.textContent
-                    text = line.textContent
+                        .map( function ( el ) {
+                          var attr = el.getAttribute( 'data-a-target' )
+                          switch ( attr ) {
+                            case 'emote-name':
+                              return el.querySelector( 'img' ).alt
+                            case 'chat-message-text':
+                              return el.textContent
+                            default:
+                              return ''
+                          }
+                        } )
+                        .join( '' )
+                      )
 
-                    if ( system.indexOf( 'Welcome to the chat room!' ) === 0 ) {
-                      from = 'jtv'
-                      html = '<span>' + line.textContent + '</span>'
-                      system = false
-                    }
-                  }
+                      html = (
+                        [].slice.call(
+                          line.querySelectorAll( ':scope div > span' )
+                        )
+                        .filter( function ( el ) {
+                          // keep only user message related spans
+                          return !!el.getAttribute( 'data-a-target' )
+                        } )
+                        .map( function ( el ) {
+                          var attr = el.getAttribute( 'data-a-target' )
+                          switch ( attr ) {
+                            case 'emote-name':
+                              return el.querySelector( 'img' ).outerHTML
+                            case 'chat-message-text':
+                              return '<span>' + el.textContent + '</span>'
+                            default:
+                              return ''
+                          }
+                          } )
+                        .join( '' )
+                      )
+                    } else {
+                      system = line.textContent
+                      text = line.textContent
 
-                  // console.log( 'from: ' + parse( from.textContent ) )
-                  // console.log( 'text: ' + text )
-                  // console.log( 'html: ' + html )
-
-                  var moderator = undefined
-                  var subscriber = undefined
-                  var prime = undefined
-                  var cheer = undefined
-                  var turbo = undefined
-                  var staff = undefined
-                  var broadcaster = undefined
-
-                  var badges = line.querySelectorAll( '.chat-badge' )
-                  ;[].forEach.call(badges, function (item) {
-                    var itemText = (
-                      item.getAttribute( 'alt' ) || item.getAttribute( 'original-title' ) ||
-                      item['alt'] || item['original-title'] || item.textContent
-                    ).trim()
-                    var t = itemText.toLowerCase()
-
-                    if (t.indexOf('broadcast') !== -1) {
-                      broadcaster = itemText
-                    }
-
-                    if (t.indexOf('staff') !== -1) {
-                      staff = itemText
-                    }
-
-                    if (t.indexOf('cheer') !== -1) {
-                      cheer = itemText
-                    }
-
-                    if (t.indexOf('turbo') !== -1) {
-                      turbo = itemText
+                      if ( system.indexOf( 'Welcome to the chat room!' ) === 0 ) {
+                        from = 'jtv'
+                        html = '<span>' + line.textContent + '</span>'
+                        system = false
+                      }
                     }
 
-                    if (t.indexOf('moderator') !== -1) {
-                      moderator = itemText
-                    }
+                    // console.log( 'from: ' + parse( from.textContent ) )
+                    // console.log( 'text: ' + text )
+                    // console.log( 'html: ' + html )
 
-                    if (t.indexOf('subscriber') !== -1) {
-                      subscriber = _parseSubscriberMessage( itemText )
-                    }
+                    var moderator = undefined
+                    var subscriber = undefined
+                    var prime = undefined
+                    var cheer = undefined
+                    var turbo = undefined
+                    var staff = undefined
+                    var broadcaster = undefined
 
-                    if (t.indexOf('prime') !== -1) {
-                      prime = itemText
+                    var badges = line.querySelectorAll( '.chat-badge' )
+                    ;[].forEach.call(badges, function (item) {
+                      var itemText = (
+                        item.getAttribute( 'alt' ) || item.getAttribute( 'original-title' ) ||
+                        item['alt'] || item['original-title'] || item.textContent
+                      ).trim()
+                      var t = itemText.toLowerCase()
+
+                      if (t.indexOf('broadcast') !== -1) {
+                        broadcaster = itemText
+                      }
+
+                      if (t.indexOf('staff') !== -1) {
+                        staff = itemText
+                      }
+
+                      if (t.indexOf('cheer') !== -1) {
+                        cheer = itemText
+                      }
+
+                      if (t.indexOf('turbo') !== -1) {
+                        turbo = itemText
+                      }
+
+                      if (t.indexOf('moderator') !== -1) {
+                        moderator = itemText
+                      }
+
+                      if (t.indexOf('subscriber') !== -1) {
+                        subscriber = _parseSubscriberMessage( itemText )
+                      }
+
+                      if (t.indexOf('prime') !== -1) {
+                        prime = itemText
+                      }
+                    })
+
+                    // user message
+                    if ( text && from ) {
+                        messages.push({
+                          type: 'chat',
+                          from: from,
+                          text: text,
+                          html: html,
+                          moderator: moderator,
+                          subscriber: subscriber,
+                          prime: prime,
+                          cheer: cheer,
+                          turbo: turbo,
+                          staff: staff,
+                          broadcaster: broadcaster
+                        })
+                    } else if (text || system) { // system message
+                      messages.push({
+                        type: 'system',
+                        from: from || '',
+                        text: text || system
+                      })
+                    } else { // unknown message
+                      var deleted = line.querySelector('.deleted')
+                      if (deleted) {
+                        messages.push({
+                          type: 'deleted',
+                          from: from,
+                          text: deleted
+                        })
+                      } else {
+                        messages.push({
+                          type: 'unknown',
+                          from: from,
+                          text: text
+                        })
+                      }
                     }
                   })
 
-                  // user message
-                  if ( text && from ) {
-                      messages.push({
-                        type: 'chat',
-                        from: from,
-                        text: text,
-                        html: html,
-                        moderator: moderator,
-                        subscriber: subscriber,
-                        prime: prime,
-                        cheer: cheer,
-                        turbo: turbo,
-                        staff: staff,
-                        broadcaster: broadcaster
-                      })
-                  } else if (text || system) { // system message
-                    messages.push({
-                      type: 'system',
-                      from: from || '',
-                      text: text || system
-                    })
-                  } else { // unknown message
-                    var deleted = line.querySelector('.deleted')
-                    if (deleted) {
-                      messages.push({
-                        type: 'deleted',
-                        from: from,
-                        text: deleted
-                      })
-                    } else {
-                      messages.push({
-                        type: 'unknown',
-                        from: from,
-                        text: text
-                      })
-                    }
-                  }
-                })
+                  // remove the parsed messages from the DOM
+                  ;[].forEach.call(lines, function (line) {
+                    // Mark the element as processed by attaching an
+                    // internal id: '_twitchwebchat_has_processed'
+                    // We have to keep the element in the DOM because javascript
+                    // on the page will sometimes attempt to remove the element
+                    // (spam removal, deletes by moderators etc) -> and if the
+                    // element has already been removed (by us right here) then
+                    // the pages javascript will fail and the page will crash and
+                    // we will not be getting any new messages.
+                    // When the messages start piling up the pages javascript
+                    // will remove older messages so we won't have to worry about
+                    // memory or size issues.
+                    line._twitchwebchat_has_processed = Date.now()
+                    line.style.background = 'red'
+                  })
 
-                // remove the parsed messages from the DOM
-                ;[].forEach.call(lines, function (line) {
-                  // Mark the element as processed by attaching an
-                  // internal id: '_twitchwebchat_has_processed'
-                  // We have to keep the element in the DOM because javascript
-                  // on the page will sometimes attempt to remove the element
-                  // (spam removal, deletes by moderators etc) -> and if the
-                  // element has already been removed (by us right here) then
-                  // the pages javascript will fail and the page will crash and
-                  // we will not be getting any new messages.
-                  // When the messages start piling up the pages javascript
-                  // will remove older messages so we won't have to worry about
-                  // memory or size issues.
-                  line._twitchwebchat_has_processed = Date.now()
-                  line.style.background = 'red'
-                })
+                  // return the data back to our script context
+                  // (outside of evaluate)
+                  return messages
+                } )
 
-                // return the data back to our script context
-                // (outside of evaluate)
-                return messages
-              } )
+                callback( undefined, {
+                  type: 'tick',
+                  text: 'DOM polled'
+                } )
 
-              callback( undefined, {
-                type: 'tick',
-                text: 'DOM polled'
-              } )
+                if (messages && messages instanceof Array) {
+                  messages.forEach(function (message) {
+                    message.channel = channel
+                    callback(undefined, message)
+                  })
+                } else {
+                  callback(undefined, {
+                    type: 'error',
+                    text: 'Error! DOM evaluation did not return an array of messages...'
+                  })
+                }
 
-              if (messages && messages instanceof Array) {
-                messages.forEach(function (message) {
-                  message.channel = channel
-                  callback(undefined, message)
-                })
-              } else {
-                callback(undefined, {
-                  type: 'error',
-                  text: 'Error! DOM evaluation did not return an array of messages...'
-                })
+                if ( _running ) {
+                  setTimeout(tick, _interval) // poll again in <interval || 1000> miliseconds
+                } else {
+                  exit()
+                }
+              } catch ( err ) {
+                /* ignore */
+                if ( !_exitCalled ) callback( err )
               }
-
-              if ( _running ) {
-                setTimeout(tick, _interval) // poll again in <interval || 1000> miliseconds
-              } else {
-                exit()
-              }
-            } catch ( err ) {
-              /* ignore */
-              if ( !_exitCalled ) callback( err )
             }
+          } catch ( err ) {
+            /* ignore */
+            if ( !_exitCalled ) callback( err )
           }
-        } catch ( err ) {
-          /* ignore */
-          if ( !_exitCalled ) callback( err )
-        }
-      } )
-    } catch ( err ) {
-      /* ignore */
-      if ( !_exitCalled ) callback( err )
-    }
-  } )()
+        } )
+      } catch ( err ) {
+        /* ignore */
+        if ( !_exitCalled ) callback( err )
+      }
+    } )()
+  }
 
   async function exit () {
     _running = false
