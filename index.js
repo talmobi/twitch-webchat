@@ -55,8 +55,7 @@ function getTopStreamers ( callback ) {
 } // eof getTopStreamers fn
 
 function getTopStreamersFull ( callback ) {
-  getTopStreamersFull.nozombie = getTopStreamersFull.nozombie || nozombie()
-  const nz = getTopStreamersFull.nozombie
+  const nz = nozombie()
 
   const opts = {
     // pipe: true,
@@ -72,14 +71,14 @@ function getTopStreamersFull ( callback ) {
     // negate finish callback so it's not called after the
     // timeout has been triggered
     finish = function () {}
-    nz.clean()
+    nz.kill()
 
     callback( 'timed out' )
   }, 1000 * 45 )
 
   function finish ( ...args ) {
     clearTimeout( _timeout )
-    nz.clean()
+    nz.kill()
     callback.apply( this, args )
   }
 
@@ -89,7 +88,7 @@ function getTopStreamersFull ( callback ) {
 
       const child = browser.process()
       const pid = child.pid
-      nz.add( pid, 60 * 1000 )
+      nz.add( { pid: pid, ttl: 1000 * 60 } )
 
       const pages = await browser.pages()
       const page = pages[ 0 ]
@@ -184,7 +183,7 @@ function getTopStreamersFull ( callback ) {
 
 function start (opts, callback) {
   start.nozombie = start.nozombie || nozombie()
-  const nz = start.nozombie
+  const nz = nozombie()
 
   var
     _channels = opts,
@@ -218,7 +217,8 @@ function start (opts, callback) {
 
   let browser
 
-  nz.clean( next )
+  nz.kill()
+  next()
   function next () {
     ;( async function () {
       try {
@@ -521,6 +521,7 @@ function start (opts, callback) {
 
   async function exit () {
     _running = false
+    nz.kill()
 
     if ( !_exitCalled ) {
       _exitCalled = true
@@ -534,8 +535,6 @@ function start (opts, callback) {
     try {
       await browser.close()
     } catch ( err ) { /* ignore */ }
-
-    nz.clean()
   }
 
   // return api to exit
