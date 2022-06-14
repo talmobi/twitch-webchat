@@ -120,6 +120,8 @@ function getTopStreamersFull ( callback ) {
             if ( !avatar ) return
 
             if ( avatar.src.indexOf( 'user-default' ) > 0 ) {
+              // top streamers with a default user avatar are probably
+              // created by bots as illegal streams.
               console.log( 'skipping channel with user-default avatar (probably illegal stream)' )
               return
             }
