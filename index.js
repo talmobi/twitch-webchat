@@ -260,7 +260,7 @@ function start (opts, callback) {
 
               try {
                 const messages = await page.evaluate( function () {
-                  var lines = document.querySelectorAll( '.chat-line__message, .chat-line__status' )
+                  var lines = document.querySelectorAll( '.chat-line__message, .chat-line__status, div[data-a-target="chat-line-message"]' )
 
                   // filter out already processed lines
                   lines = [].filter.call( lines, el => !el._twitchwebchat_has_processed )
@@ -318,7 +318,7 @@ function start (opts, callback) {
 
                       text = parse(
                         [].slice.call(
-                          line.querySelectorAll( ':scope div > span' )
+                          line.querySelectorAll( 'span[data-test-selector="chat-line-message-body"] > *' )
                         )
                         .filter( function ( el ) {
                           // keep only user message related spans
