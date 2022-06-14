@@ -62,6 +62,7 @@ test('Get chat messages from top live streamer', { timeout: 60 * 1000 }, functio
   function check () {
     var ticks = messages.filter(function (message) { return message.type === 'tick' })
     messages = messages.filter(function (message) { return message.type !== 'tick' })
+    var systemMessages = messages.filter(function (message) { return message.type === 'system' })
     var chats = messages.filter(function (message) { return message.type === 'chat' })
     t.ok(ticks.length > 0, 'tick messages found')
     // t.equal(messages[0].text, 'creating spawn...')
@@ -70,8 +71,8 @@ test('Get chat messages from top live streamer', { timeout: 60 * 1000 }, functio
     // t.equal(messages[3].text, 'page opened and ready [' + channel + ']')
     t.ok( chats && chats.length >= 1, 'user chat messages found' )
     t.ok(
-      chats[0].text.toLowerCase().indexOf('welcome') !== -1,
-      'welcome message found'
+      systemMessages[0].text.toLowerCase().indexOf('welcome to the chat') >= 0,
+      'system welcome message found'
     )
     t.ok(chats[1].from.length > 0 && chats[1].html.length > 0, 'user message found.')
     // console.log( messages )
@@ -133,10 +134,11 @@ test('Get chat messages from multiple live streamer', { timeout: 60 * 1000 }, fu
 
     var ticks = messages.filter(function (message) { return message.type === 'tick' })
     messages = messages.filter(function (message) { return message.type !== 'tick' })
+    var systemMessages = messages.filter(function (message) { return message.type === 'system' })
     var chats = messages.filter(function (message) { return message.type === 'chat' })
-    var welcomeMessages = chats.filter(function (message) {
+    var welcomeMessages = systemMessages.filter(function (message) {
       return (
-        message.text.toLowerCase().indexOf('welcome to the chat room!') >= 0
+        message.text.toLowerCase().indexOf('welcome to the chat') >= 0
       )
     })
     var userMessages = chats.filter(function (message) {
@@ -171,10 +173,11 @@ test('Get chat messages from multiple live streamer', { timeout: 60 * 1000 }, fu
 
     var ticks = messages.filter(function (message) { return message.type === 'tick' })
     messages = messages.filter(function (message) { return message.type !== 'tick' })
+    var systemMessages = messages.filter(function (message) { return message.type === 'system' })
     var chats = messages.filter(function (message) { return message.type === 'chat' })
-    var welcomeMessages = chats.filter(function (message) {
+    var welcomeMessages = systemMessages.filter(function (message) {
       return (
-        message.text.toLowerCase().indexOf('welcome to the chat room!') >= 0
+        message.text.toLowerCase().indexOf('welcome to the chat') >= 0
       )
     })
     var userMessages = chats.filter(function (message) {
