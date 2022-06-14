@@ -323,10 +323,11 @@ function start (opts, callback) {
                           line.querySelectorAll( 'span[data-test-selector="chat-line-message-body"] > *' )
                         )
                         .filter( function ( el ) {
-                          // keep only user message related spans
-                          return !!el.getAttribute( 'data-a-target' )
+                          // filter nonsense
+                          return el.textContent || el.querySelector('img')
                         } )
                         .map( function ( el ) {
+                          el = el.querySelector('[data-a-target]') || el
                           var attr = el.getAttribute( 'data-a-target' )
                           switch ( attr ) {
                             case 'emote-name':
@@ -345,10 +346,11 @@ function start (opts, callback) {
                           line.querySelectorAll( 'span[data-test-selector="chat-line-message-body"] > *' )
                         )
                         .filter( function ( el ) {
-                          // keep only user message related spans
-                          return !!el.getAttribute( 'data-a-target' )
+                          // filter nonsense
+                          return el.textContent || el.querySelector('img')
                         } )
                         .map( function ( el ) {
+                          el = el.querySelector('[data-a-target]') || el
                           var attr = el.getAttribute( 'data-a-target' )
                           switch ( attr ) {
                             case 'emote-name':
