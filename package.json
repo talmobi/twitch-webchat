@@ -34,12 +34,12 @@
   "dependencies": {
     "minimist": "~1.2.5",
     "nozombie": "~1.1.0",
-    "puppeteer": "~5.2.1"
+    "puppeteer": "~14.4.0"
   },
   "devDependencies": {
     "express": "~4.16.4",
-    "kiite": "~0.3.3",
-    "mustache": "~2.3.2",
-    "tape": "~4.6.3"
+    "kiite": "~0.4.0",
+    "mustache": "~4.2.0",
+    "tape": "~5.5.3"
   }
 }
