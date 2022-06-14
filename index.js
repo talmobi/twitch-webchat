@@ -311,7 +311,7 @@ function start (opts, callback) {
                     var text = undefined
                     var html = undefined
 
-                    if ( line.className !== 'chat-line__status' ) {
+                    if ( !line.classList.contains('chat-line__status') ) {
                       from = parse(
                         line.querySelector( '.chat-line__username' )
                       )
