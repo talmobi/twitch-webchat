@@ -108,6 +108,8 @@ var ctrl = tw.start(channels, function (err, msg) {
         badgeString += msg.broadcaster ? badgeify('B', 'red') : ''
         badgeString += msg.staff ? badgeify('Staff', 'yellow') : ''
 
+        badgeString += msg.gifter ? badgeify('G', 'yellow') : ''
+
         if ( msg.subscriber ) {
           var label = msg.subscriber.months || ''
 

@@ -381,6 +381,7 @@ function start (opts, callback) {
                     var turbo = undefined
                     var staff = undefined
                     var broadcaster = undefined
+                    var gifter = undefined
 
                     var badges = line.querySelectorAll( '.chat-badge' )
                     ;[].forEach.call(badges, function (item) {
@@ -417,6 +418,10 @@ function start (opts, callback) {
                       if (t.indexOf('prime') !== -1) {
                         prime = itemText
                       }
+
+                      if (t.indexOf('gifter') !== -1) {
+                        gifter = itemText
+                      }
                     })
 
                     // user message
@@ -429,6 +434,7 @@ function start (opts, callback) {
                           moderator: moderator,
                           subscriber: subscriber,
                           prime: prime,
+                          gifter: gifter,
                           cheer: cheer,
                           turbo: turbo,
                           staff: staff,
