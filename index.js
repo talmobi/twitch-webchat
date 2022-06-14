@@ -262,7 +262,7 @@ function start (opts, callback) {
 
               try {
                 const messages = await page.evaluate( function () {
-                  var lines = document.querySelectorAll( '.chat-line__message, .chat-line__status' )
+                  var lines = document.querySelectorAll( '.chat-line__message, .chat-line__status, div[data-a-target="chat-line-message"]' )
 
                   // filter out already processed lines
                   lines = [].filter.call( lines, el => !el._twitchwebchat_has_processed )
@@ -313,14 +313,14 @@ function start (opts, callback) {
                     var text = undefined
                     var html = undefined
 
-                    if ( line.className !== 'chat-line__status' ) {
+                    if ( !line.classList.contains('chat-line__status') ) {
                       from = parse(
                         line.querySelector( '.chat-line__username' )
                       )
 
                       text = parse(
                         [].slice.call(
-                          line.querySelectorAll( ':scope div > span' )
+                          line.querySelectorAll( 'span[data-test-selector="chat-line-message-body"] > *' )
                         )
                         .filter( function ( el ) {
                           // keep only user message related spans
@@ -364,12 +364,7 @@ function start (opts, callback) {
                     } else {
                       system = line.textContent
                       text = line.textContent
-
-                      if ( system.indexOf( 'Welcome to the chat room!' ) === 0 ) {
-                        from = 'jtv'
-                        html = '<span>' + line.textContent + '</span>'
-                        system = false
-                      }
+                      html = line.innerHTML
                     }
 
                     // console.log( 'from: ' + parse( from.textContent ) )
@@ -383,6 +378,7 @@ function start (opts, callback) {
                     var turbo = undefined
                     var staff = undefined
                     var broadcaster = undefined
+                    var gifter = undefined
 
                     var badges = line.querySelectorAll( '.chat-badge' )
                     ;[].forEach.call(badges, function (item) {
@@ -419,6 +415,10 @@ function start (opts, callback) {
                       if (t.indexOf('prime') !== -1) {
                         prime = itemText
                       }
+
+                      if (t.indexOf('gifter') !== -1) {
+                        gifter = itemText
+                      }
                     })
 
                     // user message
@@ -431,6 +431,7 @@ function start (opts, callback) {
                           moderator: moderator,
                           subscriber: subscriber,
                           prime: prime,
+                          gifter: gifter,
                           cheer: cheer,
                           turbo: turbo,
                           staff: staff,
