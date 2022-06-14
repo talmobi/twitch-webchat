@@ -362,12 +362,7 @@ function start (opts, callback) {
                     } else {
                       system = line.textContent
                       text = line.textContent
-
-                      if ( system.indexOf( 'Welcome to the chat room!' ) === 0 ) {
-                        from = 'jtv'
-                        html = '<span>' + line.textContent + '</span>'
-                        system = false
-                      }
+                      html = line.innerHTML
                     }
 
                     // console.log( 'from: ' + parse( from.textContent ) )
