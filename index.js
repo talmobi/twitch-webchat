@@ -342,7 +342,7 @@ function start (opts, callback) {
 
                       html = (
                         [].slice.call(
-                          line.querySelectorAll( ':scope div > span' )
+                          line.querySelectorAll( 'span[data-test-selector="chat-line-message-body"] > *' )
                         )
                         .filter( function ( el ) {
                           // keep only user message related spans
