@@ -74,7 +74,7 @@ test('Get chat messages from top live streamer', { timeout: 60 * 1000 }, functio
       systemMessages[0].text.toLowerCase().indexOf('welcome to the chat') >= 0,
       'system welcome message found'
     )
-    t.ok(chats[1].from.length > 0 && chats[1].html.length > 0, 'user message found.')
+    t.ok(chats[1].from && chats[1].text && chats[1].html, 'user message found.')
     // console.log( messages )
     t.equal(messages[messages.length - 1].type, 'exit')
   }
@@ -143,9 +143,7 @@ test('Get chat messages from multiple live streamer', { timeout: 60 * 1000 }, fu
     })
     var userMessages = chats.filter(function (message) {
       return (
-        message.from.toLowerCase().length > 0 &&
-        // message.from.toLowerCase() !== 'jtv' &&
-        message.html.length > 0
+        message.from.toLowerCase() && message.html && message.text
       )
     })
     var channel0UserMessages = userMessages.filter(function (message) {
@@ -182,9 +180,7 @@ test('Get chat messages from multiple live streamer', { timeout: 60 * 1000 }, fu
     })
     var userMessages = chats.filter(function (message) {
       return (
-        message.from.toLowerCase().length > 0 &&
-        // message.from.toLowerCase() !== 'jtv' &&
-        message.html.length > 0
+        message.from.toLowerCase() && message.html && message.text
       )
     })
     var channel0UserMessages = userMessages.filter(function (message) {
