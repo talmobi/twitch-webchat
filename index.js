@@ -95,10 +95,10 @@ function getTopStreamersFull ( callback ) {
 
       await page.goto( 'https://www.twitch.tv/directory/all?sort=VIEWER_COUNT')
 
-      await page.waitFor( 'article' )
-      await page.waitFor( '.side-nav-card' )
-      await page.waitFor( '.side-nav-card__live-status' )
-      await page.waitFor( '.tw-media-card-stat' )
+      await page.waitForSelector( 'article' )
+      await page.waitForSelector( '.side-nav-card' )
+      await page.waitForSelector( '.side-nav-card__live-status' )
+      await page.waitForSelector( '.tw-media-card-stat' )
 
       // .tw-media-card-stat > span
       // .tw-media-card-meta__links
@@ -243,7 +243,7 @@ function start (opts, callback) {
             await page.goto( url, {
               waitUntil: 'domcontentloaded'
             } )
-            await page.waitFor( function () {
+            await page.waitForFunction( function () {
               const el = document.querySelector( 'div[data-a-target="chat-welcome-message"].chat-line__status' )
               return !!el
             }, { polling: 250 } )
