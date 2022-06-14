@@ -106,13 +106,13 @@ function getTopStreamersFull ( callback ) {
       // console.log( ' >>> GIRAFFE <<< ' )
 
       const list = await page.evaluate( function () {
-        var articles = document.querySelectorAll( 'article' )
+        var streamCards = document.querySelectorAll( 'div[data-target="directory-game__card_container"]' )
 
         var lock = {}
         var list = []
 
         ;[].forEach.call(
-          articles,
+          streamCards,
           function ( el ) {
             el.style.background = 'cyan'
 
@@ -140,9 +140,9 @@ function getTopStreamersFull ( callback ) {
 
             el.style.background = 'purple'
 
-            var link = el.querySelector( '.tw-media-card-meta__links a' )
+            var link = el.querySelector( 'a.tw-link' )
             var href = link.href
-            var name = href.split( '/' )[ 3 ]
+            var name = href.split( '/' ).pop()
 
             if ( !name ) return
 
