@@ -128,7 +128,7 @@ var ctrl = tw.start(channels, function (err, msg) {
 
         badgeString += msg.prime ? badgeify('P', 'blue') : ''
         badgeString += msg.moderator ? badgeify('M', 'green') : ''
-        badgeString += msg.turbo ? badgeify('R', 'gray') : ''
+        badgeString += msg.turbo ? badgeify('T', 'gray') : ''
 
         badgeString += msg.cheer ?
           badgeify('C' + msg.cheer.replace(/\D+/g, ''), 'cyan') : ''
