@@ -138,5 +138,22 @@ Options:
 npm test
 ```
 
+## TODO - Support global and channeled enabled emotes from third parties
+#### FFZ
+```bash
+  global: 'https://api.frankerfacez.com/v1/set/global'
+  user/channel: 'https://api.frankerfacez.com/v1/room/id/:userId'
+```
+#### BTTV
+```bash
+  global: 'https://api.betterttv.net/3/cached/emotes/global'
+  user/channel: 'https://api.betterttv.net/3/users/twitch/:userId'
+```
+#### 7TV
+```bash
+  global: 'https://api.7tv.app/v2/emotes/global'
+  user/channel: 'https://api.7tv.app/v2/users/:userId/emotes'
+```
+
 ## LICENSE
 MIT
