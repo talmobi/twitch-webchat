@@ -3,11 +3,15 @@
 var tw = require('./index.js')
 
 var argv = require('minimist')(process.argv.slice(2), {
-  boolean: ['help', 'version', 'no-color', 'top'],
+  boolean: ['help', 'version', 'verbose', 'color', 'top'],
   alias: {
     h: 'help',
     v: 'version',
+    V: 'verbose',
     t: 'top'
+  },
+  default: {
+    color: true
   }
 })
 
@@ -72,8 +76,6 @@ if (!channels || !channels.length || channels.length < 1) {
   process.exit()
 }
 
-console.error('Opening channels: ' + channels.join(', ') + '...')
-
 var c = {
   'cyan': '36m',
   'magenta': '35m',
@@ -85,13 +87,16 @@ var c = {
 }
 
 function cc (text, code) {
-  if (argv['no-color']) return text
+  if (!argv['color']) return text
   return ('\u001b[' + code + text + '\u001b[0m')
 }
 
 function badgeify (letter, color) {
   return ('[' + cc(letter, c[color]) + '] ')
 }
+
+console.error('terminal colors are: ' + (!argv['color'] ? 'OFF' : cc('ON', c['red'])))
+console.error('Opening channels: ' + channels.join(', ') + '...')
 
 var ctrl = tw.start(channels, function (err, msg) {
   if ( err ) throw err
