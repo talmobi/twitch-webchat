@@ -1,9 +1,82 @@
 const puppeteer = require( 'puppeteer' )
 const nozombie = require( 'nozombie' )
+const miniget = require('miniget')
 
 // ref: https://stackoverflow.com/a/41854075/3496140
 function nameFunction(name, body) {
   return {[name](...args) {return body(...args)}}[name]
+}
+
+// 91067577
+// 762607118
+
+
+const BTTV_EMOTE_URL = 'https://cdn.betterttv.net/emote/$emoteId/1x'
+const EMOTE_URLS = {
+  'globalffz': 'https://api.frankerfacez.com/v1/set/global',
+  'globalbttv': 'https://api.betterttv.net/3/cached/emotes/global',
+  'global7tv': 'https://api.7tv.app/v2/emotes/global',
+  // 'ffz': 'https://api.frankerfacez.com/v1/room/id/:userId',
+  // 'bttv': 'https://api.betterttv.net/3/users/twitch/:userId',
+  // '7tv': 'https://api.7tv.app/v2/users/:userId/emotes',
+}
+const CACHED_EMOTES = {}
+
+async function loadFfzEmotes () {
+  const url = EMOTE_URLS.globalffz
+
+  try {
+    const body = await miniget(url).text()
+    // console.log(body)
+    const json = JSON.parse(body)
+    for (set of Object.values(json.sets)) {
+      for (e of set.emoticons) {
+        const name = e.name
+        const url = e.urls[1]
+        CACHED_EMOTES[name] = url
+      }
+    }
+  } catch (err ) {
+    console.log(err)
+  }
+}
+
+async function loadBttvEmotes () {
+  const url = EMOTE_URLS.globalbttv
+
+  try {
+    const body = await miniget(url).text()
+    // console.log(body)
+    const json = JSON.parse(body)
+    const emotes = json
+    for (let i = 0; i < emotes.length; i++) {
+      const e = emotes[i]
+      const name = e.code
+      const url = BTTV_EMOTE_URL.replace('$emoteId', e.id)
+      CACHED_EMOTES[name] = url
+    }
+  } catch (err ) {
+    console.log(err)
+  }
+}
+
+async function load7tvEmotes () {
+  const url = EMOTE_URLS.global7tv
+
+  try {
+    const body = await miniget(url).text()
+    // console.log(body)
+    const json = JSON.parse(body)
+    const emotes = json
+    for (let i = 0; i < emotes.length; i++) {
+      const e = emotes[i]
+      const name = e.name
+      const url = e.urls[0][1]
+      CACHED_EMOTES[name] = url
+    }
+  } catch (err ) {
+    console.log(err)
+  }
 }
 
 // helper function to turn long-running task with callback
@@ -237,6 +310,19 @@ function start (opts, callback) {
         nz.add( pid )
 
         _channels.forEach( async function ( channel ) {
+          try {
+            await loadFfzEmotes()
+            await loadBttvEmotes()
+            await load7tvEmotes()
+
+            console.log('cached emotes:')
+            console.log(
+              JSON.stringify(CACHED_EMOTES, null, 2)
+            )
+          } catch (err) {
+            console.log(err)
+          }
+
           try {
             const url = URL_TEMPLATE.replace('$channel', channel)
 
@@ -493,6 +579,21 @@ function start (opts, callback) {
                 if (messages && messages instanceof Array) {
                   messages.forEach(function (message) {
                     message.channel = channel
+
+                    // transform message html for popular emotes
+                    if (message.html) {
+                      message.html = message.html
+                        .split(/\s+/)
+                        .map(function(word) {
+                          if (CACHED_EMOTES[word]) {
+                            return `<img alt=${word} src=${CACHED_EMOTES[word]} />`
+                          }
+                          return word
+                        })
+                        .join( ' ' )
+                    }
+
+
                     callback(undefined, message)
                   })
                 } else {
