@@ -1,6 +1,8 @@
+const fs = require('fs')
 const puppeteer = require( 'puppeteer' )
 const nozombie = require( 'nozombie' )
 const miniget = require('miniget')
+const rimraf = require('rimraf')
 
 // ref: https://stackoverflow.com/a/41854075/3496140
 function nameFunction(name, body) {
@@ -291,6 +293,7 @@ function start (opts, callback) {
   const URL_TEMPLATE = "https://www.twitch.tv/popout/$channel/chat"
 
   let browser
+  const tmpDirPaths = []
 
   nz.kill()
   next()
@@ -309,16 +312,22 @@ function start (opts, callback) {
         const pid = child.pid
         nz.add( pid )
 
+        const spawnargs = browser.process().spawnargs
+        const tmpDirPath = spawnargs.find(
+          function (el) { return el.indexOf('--user-data-dir=') === 0 }
+        ).split('=')[1]
+        tmpDirPaths.push(tmpDirPath)
+
         _channels.forEach( async function ( channel ) {
           try {
             await loadFfzEmotes()
             await loadBttvEmotes()
             await load7tvEmotes()
 
-            console.log('cached emotes:')
-            console.log(
-              JSON.stringify(CACHED_EMOTES, null, 2)
-            )
+            // console.log('cached emotes:')
+            // console.log(
+            //   JSON.stringify(CACHED_EMOTES, null, 2)
+            // )
           } catch (err) {
             console.log(err)
           }
@@ -628,6 +637,11 @@ function start (opts, callback) {
   async function exit () {
     _running = false
     nz.kill()
+
+    tmpDirPaths.forEach(function (p) {
+      rimraf.sync(p)
+      console.error('removed tmp dir path: ' + p)
+    })
 
     if ( !_exitCalled ) {
       _exitCalled = true
