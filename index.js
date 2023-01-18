@@ -364,7 +364,7 @@ function start (opts, callback) {
 
                   if (!(lines && lines.length > 0)) return []
 
-                  function parse (text) {
+                  function parseText (text) {
                     if ( text && text.textContent ) text = text.textContent
                     return text && text
                       .split(/[\r\n]/g)
@@ -409,13 +409,27 @@ function start (opts, callback) {
                     var html = undefined
 
                     if ( !line.classList.contains('chat-line__status') ) {
-                      from = parse(
+                      from = parseText(
                         line.querySelector( '.chat-line__username' )
                       )
 
-                      text = parse(
+                      function getSeparator (lineEl) {
+                        var found
+                        var span, spans = [].slice.call( lineEl.querySelectorAll('span') )
+                        for (var i = 0; i < spans.length; i++) {
+                          var span = spans[i]
+                          var text = span.textContent
+                          if (text.trim() === ':') {
+                            found = span
+                            break
+                          }
+                        }
+                        return found
+                      }
+
+                      text = parseText(
                         [].slice.call(
-                          line.querySelectorAll( 'span[data-test-selector="chat-line-message-body"] > *' )
+                          line.querySelectorAll( 'span[data-a-target="chat-message-text"], div[data-test-selector="emote-button"]' )
                         )
                         .filter( function ( el ) {
                           // filter nonsense
@@ -423,22 +437,19 @@ function start (opts, callback) {
                         } )
                         .map( function ( el ) {
                           el = el.querySelector('[data-a-target]') || el
-                          var attr = el.getAttribute( 'data-a-target' )
-                          switch ( attr ) {
-                            case 'emote-name':
-                              return el.querySelector( 'img' ).alt
-                            case 'chat-message-text':
-                              return el.textContent
-                            default:
-                              return ''
+                          var imgEl = el.querySelector('img')
+                          if (imgEl) {
+                            return imgEl.alt
                           }
+
+                          return el.textContent
                         } )
                         .join( '' )
                       )
 
                       html = (
                         [].slice.call(
-                          line.querySelectorAll( 'span[data-test-selector="chat-line-message-body"] > *' )
+                          line.querySelectorAll( 'span[data-a-target="chat-message-text"], div[data-test-selector="emote-button"]' )
                         )
                         .filter( function ( el ) {
                           // filter nonsense
@@ -446,15 +457,12 @@ function start (opts, callback) {
                         } )
                         .map( function ( el ) {
                           el = el.querySelector('[data-a-target]') || el
-                          var attr = el.getAttribute( 'data-a-target' )
-                          switch ( attr ) {
-                            case 'emote-name':
-                              return el.querySelector( 'img' ).outerHTML
-                            case 'chat-message-text':
-                              return '<span>' + el.textContent + '</span>'
-                            default:
-                              return ''
+                          var imgEl = el.querySelector('img')
+                          if (imgEl) {
+                            return imgEl.outerHTML
                           }
+
+                          return '<span>' + el.textContent + '</span>'
                           } )
                         .join( '' )
                       )
@@ -464,7 +472,7 @@ function start (opts, callback) {
                       html = line.innerHTML
                     }
 
-                    // console.log( 'from: ' + parse( from.textContent ) )
+                    // console.log( 'from: ' + parseText( from.textContent ) )
                     // console.log( 'text: ' + text )
                     // console.log( 'html: ' + html )
 
