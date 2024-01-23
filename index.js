@@ -134,7 +134,7 @@ function getTopStreamersFull ( callback ) {
 
   const opts = {
     // pipe: true,
-    // headless: false,
+    headless: "new",
     // slowMo: 250, // slow down to more easily see what's going on
     defaultViewport: {
       width: 1920,
@@ -301,7 +301,8 @@ function start (opts, callback) {
     ;( async function () {
       try {
         const opts = {
-          pipe: true
+          pipe: true,
+          headless: "new",
           // headless: false,
           // slowMo: 250 // slow down to more easily see what's going on
         }
