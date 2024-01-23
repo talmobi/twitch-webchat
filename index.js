@@ -322,7 +322,7 @@ function start (opts, callback) {
           try {
             await loadFfzEmotes()
             await loadBttvEmotes()
-            await load7tvEmotes()
+            // await load7tvEmotes()
 
             // console.log('cached emotes:')
             // console.log(
