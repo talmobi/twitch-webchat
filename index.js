@@ -346,6 +346,15 @@ function start (opts, callback) {
               return !!el
             }, { polling: 250 } )
 
+            await page.setRequestInterception(true)
+            page.on('request', function (request) {
+              if (request.isNavigationRequest() && request.redirectChain().length) {
+                request.abort();
+              } else {
+                request.continue();
+              }
+            })
+
             tick()
 
             async function tick () {
