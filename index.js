@@ -346,6 +346,7 @@ function start (opts, callback) {
               return !!el
             }, { polling: 250 } )
 
+            // prevent page redirections due to channel raids etc
             await page.setRequestInterception(true)
             page.on('request', function (request) {
               if (request.isNavigationRequest() && request.redirectChain().length) {
