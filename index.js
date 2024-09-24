@@ -349,7 +349,7 @@ function start (opts, callback) {
             // prevent page redirections due to channel raids etc
             await page.setRequestInterception(true)
             page.on('request', function (request) {
-              if (request.isNavigationRequest() && request.redirectChain().length) {
+              if (request.isNavigationRequest()) {
                 request.abort();
               } else {
                 request.continue();
